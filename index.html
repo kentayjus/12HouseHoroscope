@@ -1,0 +1,3078 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>12-House Cycle & Calendar Explorer</title>
+  <style>
+    :root {
+      --bg-void: #070b14;
+      --bg-panel: #0e1525;
+      --bg-card: #131c31;
+      --bg-card-hover: #192540;
+      --border-subtle: rgba(148, 163, 184, 0.16);
+      --border-strong: rgba(251, 191, 36, 0.45);
+      --text-primary: #f1f5f9;
+      --text-secondary: #94a3b8;
+      --text-muted: #64748b;
+      --gold: #fbbf24;
+      --gold-soft: rgba(251, 191, 36, 0.14);
+      --moon-accent: #c084fc;
+      --moon-soft: rgba(192, 132, 252, 0.16);
+      --moon-border: rgba(192, 132, 252, 0.5);
+      --radius-lg: 12px;
+      --radius-md: 9px;
+      --radius-sm: 6px;
+      --transition: 160ms cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, sans-serif;
+      background: radial-gradient(circle at 15% 0%, #131f3a 0%, var(--bg-void) 55%);
+      color: var(--text-primary);
+      min-height: 100vh;
+      line-height: 1.4;
+      padding: 12px 16px 20px;
+    }
+
+    .app-shell {
+      max-width: 1460px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    /* Top Bar with Integrated Sign Dropdown Controls */
+    .topbar {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      padding: 10px 12px;
+      background: rgba(14, 21, 37, 0.92);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      backdrop-filter: blur(10px);
+    }
+
+    .topbar-header-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .brand h1 {
+      font-size: 0.98rem;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+    }
+
+    .chart-summary-inline {
+      font-size: 0.69rem;
+      color: var(--text-secondary);
+      text-align: right;
+    }
+
+    @media (max-width: 900px) {
+      .chart-summary-inline {
+        text-align: left;
+      }
+    }
+
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn {
+      background: var(--bg-card);
+      color: var(--text-primary);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      padding: 5px 9px;
+      font-size: 0.73rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all var(--transition);
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      white-space: nowrap;
+    }
+
+    .btn:hover {
+      background: var(--bg-card-hover);
+      border-color: rgba(148, 163, 184, 0.35);
+      transform: translateY(-1px);
+    }
+
+    .btn.active {
+      background: var(--gold-soft);
+      border-color: var(--border-strong);
+      color: var(--gold);
+    }
+
+    .btn.moon-btn.active {
+      background: var(--moon-soft);
+      border-color: var(--moon-border);
+      color: #e9d5ff;
+    }
+
+    .btn-sm {
+      padding: 3px 6px;
+      font-size: 0.67rem;
+    }
+
+    .moon-icon {
+      display: inline-block;
+      font-size: 0.76rem;
+      line-height: 1;
+      color: #d8b4fe;
+    }
+
+    /* Lunar Phase Disc Visuals */
+    .lunar-disc {
+      width: 11px;
+      height: 11px;
+      border-radius: 50%;
+      display: inline-block;
+      flex: 0 0 auto;
+      border: 1px solid rgba(243, 232, 255, 0.7);
+      box-shadow: 0 0 5px rgba(192, 132, 252, 0.45);
+    }
+
+    .lunar-disc-lg {
+      width: 16px;
+      height: 16px;
+      border-width: 1.5px;
+      box-shadow: 0 0 8px rgba(192, 132, 252, 0.6);
+    }
+
+    .lunar-disc--new {
+      background: #090d16;
+      border-color: rgba(203, 213, 225, 0.75);
+      box-shadow: inset 0 0 3px rgba(0, 0, 0, 0.9);
+    }
+
+    .lunar-disc--waxing-crescent {
+      background: linear-gradient(90deg, #090d16 58%, #f8fafc 64%, #f8fafc 100%);
+    }
+
+    .lunar-disc--first-quarter {
+      background: linear-gradient(90deg, #090d16 50%, #f8fafc 50%);
+    }
+
+    .lunar-disc--waxing-gibbous {
+      background: linear-gradient(90deg, #090d16 18%, #f8fafc 26%, #f8fafc 100%);
+    }
+
+    .lunar-disc--full {
+      background: #f8fafc;
+      border-color: #ffffff;
+      box-shadow: 0 0 8px rgba(255, 255, 255, 0.85);
+    }
+
+    .lunar-disc--waning-gibbous {
+      background: linear-gradient(90deg, #f8fafc 74%, #090d16 82%);
+    }
+
+    .lunar-disc--last-quarter {
+      background: linear-gradient(90deg, #f8fafc 50%, #090d16 50%);
+    }
+
+    .lunar-disc--waning-crescent {
+      background: linear-gradient(90deg, #f8fafc 36%, #090d16 42%);
+    }
+
+    /* Standalone Moon Cycle Overview Card (not tied to a house) */
+    .moon-standalone-card {
+      background: linear-gradient(
+        135deg,
+        rgba(192, 132, 252, 0.18),
+        rgba(30, 27, 75, 0.78)
+      );
+      border: 1px solid rgba(192, 132, 252, 0.5);
+      border-left: 4px solid #c084fc;
+      border-radius: var(--radius-md);
+      padding: 9px 11px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .moon-standalone-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      font-size: 0.68rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: #f3e8ff;
+    }
+
+    .moon-standalone-phase-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: #ffffff;
+    }
+
+    .moon-standalone-meta {
+      font-size: 0.67rem;
+      font-weight: 600;
+      color: #e9d5ff;
+    }
+
+    .moon-standalone-body {
+      font-size: 0.73rem;
+      color: #f1f5f9;
+      line-height: 1.42;
+    }
+
+    .moon-standalone-sub {
+      font-size: 0.68rem;
+      color: #ddd6fe;
+      background: rgba(9, 14, 26, 0.45);
+      border-radius: var(--radius-sm);
+      padding: 5px 7px;
+      line-height: 1.38;
+    }
+
+    /* Integrated Sign Dropdown Controls inside Topbar */
+    .birth-controls-card {
+      background: rgba(9, 14, 26, 0.72);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 8px 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+    }
+
+    .birth-controls-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .birth-inputs-group {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .field-inline {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 0.71rem;
+      color: var(--text-secondary);
+    }
+
+    .field-inline select {
+      background: var(--bg-card);
+      color: var(--text-primary);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      padding: 4px 7px;
+      font-size: 0.72rem;
+      font-family: inherit;
+    }
+
+    .field-inline select:focus {
+      outline: none;
+      border-color: var(--border-strong);
+    }
+
+    .calc-inline-link {
+      color: var(--gold);
+      text-decoration: none;
+      font-size: 0.68rem;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 7px;
+      border-radius: var(--radius-sm);
+      background: rgba(251, 191, 36, 0.1);
+      border: 1px solid rgba(251, 191, 36, 0.32);
+      transition: all var(--transition);
+    }
+
+    .calc-inline-link:hover {
+      background: rgba(251, 191, 36, 0.18);
+      border-color: var(--gold);
+      text-decoration: underline;
+    }
+
+    .birth-controls-footer {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding-top: 6px;
+      border-top: 1px dashed var(--border-subtle);
+      font-size: 0.68rem;
+      color: var(--text-secondary);
+    }
+
+    .save-toggle-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    /* Main ~1/3 Left (Details) & ~2/3 Right (12 Houses + Calendar) Split */
+    .workspace-grid {
+      display: grid;
+      grid-template-columns: minmax(340px, 1fr) minmax(0, 2fr);
+      gap: 12px;
+      align-items: start;
+      position: relative;
+      z-index: 1;
+    }
+
+    @media (max-width: 1040px) {
+      .workspace-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Left Panel (~1/3): Guidance & Date Range Details */
+    .info-panel {
+      background: rgba(14, 21, 37, 0.92);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      max-height: calc(100vh - 150px);
+      min-height: 520px;
+      overflow-y: auto;
+    }
+
+    .info-panel::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .info-panel::-webkit-scrollbar-track {
+      background: rgba(10, 15, 28, 0.5);
+      border-radius: 999px;
+    }
+
+    .info-panel::-webkit-scrollbar-thumb {
+      background: rgba(148, 163, 184, 0.28);
+      border-radius: 999px;
+    }
+
+    .info-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 8px;
+      padding-bottom: 7px;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .info-title {
+      font-size: 0.92rem;
+      font-weight: 700;
+    }
+
+    .info-subtitle {
+      font-size: 0.7rem;
+      color: var(--text-secondary);
+      margin-top: 2px;
+    }
+
+    .selected-date-pill {
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: var(--radius-sm);
+      background: var(--gold-soft);
+      color: var(--gold);
+      border: 1px solid var(--border-strong);
+      white-space: nowrap;
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* Filter bar with Today's Focus, Start / End / Peak, Mid-Cycle, and Moon icon */
+    .cycle-filter-bar {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr)) auto;
+      gap: 4px;
+      padding: 5px;
+      background: rgba(9, 14, 26, 0.75);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      align-items: center;
+    }
+
+    .cycle-filter-bar .btn {
+      justify-content: center;
+      padding: 4px 5px;
+      font-size: 0.64rem;
+    }
+
+    .cycle-filter-bar .moon-filter-btn {
+      padding: 4px 7px;
+      font-size: 0.72rem;
+    }
+
+    .next-area-filter-banner {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+      padding: 6px 8px;
+      border-radius: var(--radius-sm);
+      background: rgba(192, 132, 252, 0.14);
+      border: 1px solid rgba(192, 132, 252, 0.45);
+      font-size: 0.68rem;
+      color: #f3e8ff;
+    }
+
+    .guidance-feed {
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+    }
+
+    .guidance-section-divider {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      padding: 6px 8px;
+      border-radius: var(--radius-sm);
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid rgba(148, 163, 184, 0.22);
+    }
+
+    .guidance-section-divider.upcoming {
+      margin-top: 8px;
+      background: rgba(30, 58, 138, 0.22);
+      border-color: rgba(96, 165, 250, 0.38);
+    }
+
+    .guidance-section-title {
+      font-size: 0.66rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: #f8fafc;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .guidance-section-divider.upcoming .guidance-section-title {
+      color: #93c5fd;
+    }
+
+    .guidance-section-desc {
+      font-size: 0.64rem;
+      color: var(--text-secondary);
+    }
+
+    @keyframes midCycleFlow {
+      0%, 100% {
+        background-position: 0% 50%;
+      }
+      50% {
+        background-position: 100% 50%;
+      }
+    }
+
+    .guidance-card {
+      --house-color: var(--gold);
+      background: linear-gradient(
+        135deg,
+        color-mix(in srgb, var(--house-color) 20%, #10192e),
+        color-mix(in srgb, var(--house-color) 8%, #090e1c)
+      );
+      border: 1px solid color-mix(in srgb, var(--house-color) 42%, transparent);
+      border-left: 4px solid var(--house-color);
+      border-radius: var(--radius-md);
+      padding: 8px 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      cursor: pointer;
+      transition: transform var(--transition), border-color var(--transition), box-shadow var(--transition);
+    }
+
+    .guidance-card.shade-major {
+      background: linear-gradient(
+        135deg,
+        color-mix(in srgb, var(--house-color) 30%, #14203a),
+        color-mix(in srgb, var(--house-color) 12%, #090e1c)
+      );
+      border-color: color-mix(in srgb, var(--house-color) 65%, #fbbf24 35%);
+    }
+
+    .guidance-card.shade-minor {
+      background: linear-gradient(
+        135deg,
+        color-mix(in srgb, var(--house-color) 14%, #0f172a),
+        color-mix(in srgb, var(--house-color) 5%, #080c16)
+      );
+      border-color: color-mix(in srgb, var(--house-color) 32%, rgba(148, 163, 184, 0.22));
+    }
+
+    .guidance-card.is-midcycle {
+      background-size: 180% 180%;
+      animation: midCycleFlow 6s ease-in-out infinite;
+    }
+
+    .guidance-card.is-upcoming {
+      opacity: 0.85;
+      border-style: dashed;
+      border-left-style: solid;
+    }
+
+    .guidance-card:hover {
+      transform: translateY(-1px);
+      opacity: 1;
+      border-color: color-mix(in srgb, var(--house-color) 85%, #ffffff 15%);
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.35);
+    }
+
+    .guidance-card.is-expanded {
+      opacity: 1;
+      border-color: var(--gold);
+      box-shadow: 0 0 0 1px rgba(251, 191, 36, 0.35);
+    }
+
+    .guidance-meta-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+      font-size: 0.66rem;
+    }
+
+    .guidance-house-tag {
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: color-mix(in srgb, var(--house-color) 82%, #ffffff 18%);
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .guidance-dates {
+      font-weight: 700;
+      color: color-mix(in srgb, var(--house-color) 75%, #f8fafc 25%);
+      white-space: nowrap;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .guidance-main-text {
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: #ffffff;
+      line-height: 1.42;
+    }
+
+    .guidance-natal-hook {
+      font-size: 0.68rem;
+      color: #fde68a;
+      background: rgba(251, 191, 36, 0.08);
+      border-left: 2px solid rgba(251, 191, 36, 0.55);
+      padding: 3px 6px;
+      border-radius: 3px;
+    }
+
+    .guidance-expand-hint {
+      font-size: 0.62rem;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .guidance-extra-details {
+      margin-top: 3px;
+      padding-top: 6px;
+      border-top: 1px dashed rgba(148, 163, 184, 0.25);
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      font-size: 0.7rem;
+      color: var(--text-secondary);
+    }
+
+    .guidance-extra-details strong {
+      color: var(--text-primary);
+    }
+
+    .guidance-cycle-meaning {
+      color: #fde047;
+      background: rgba(250, 204, 21, 0.12);
+      border-left: 2px solid #facc15;
+      padding: 4px 6px;
+      border-radius: 4px;
+      font-weight: 600;
+    }
+
+    .guidance-cycle-meaning strong {
+      color: #fef08a;
+    }
+
+    .guidance-moon-phase-note {
+      color: #e9d5ff;
+      background: rgba(192, 132, 252, 0.12);
+      border-left: 2px solid #c084fc;
+      padding: 5px 7px;
+      border-radius: 4px;
+      font-size: 0.68rem;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .guidance-moon-phase-top {
+      display: flex;
+      align-items: flex-start;
+      gap: 5px;
+    }
+
+    .guidance-moon-phase-note strong {
+      color: #f3e8ff;
+    }
+
+    .next-area-btn {
+      align-self: flex-start;
+      background: rgba(192, 132, 252, 0.18);
+      color: #f3e8ff;
+      border: 1px solid rgba(192, 132, 252, 0.52);
+      border-radius: var(--radius-sm);
+      padding: 3px 8px;
+      font-size: 0.64rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all var(--transition);
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .next-area-btn:hover {
+      background: rgba(192, 132, 252, 0.3);
+      border-color: #e9d5ff;
+      transform: translateY(-1px);
+    }
+
+    .next-area-btn.is-active {
+      background: #c084fc;
+      color: #090d16;
+      border-color: #f3e8ff;
+    }
+
+    /* Right Panel (~2/3): 4 Rows of 3 Houses Grid + Calendar */
+    .right-column {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .section-card {
+      background: rgba(14, 21, 37, 0.88);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: 10px 12px;
+      position: relative;
+      z-index: 10;
+    }
+
+    .section-header {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .phase-legend {
+      display: inline-flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 5px;
+      font-size: 0.67rem;
+      color: var(--text-secondary);
+    }
+
+    .phase-legend-btn {
+      background: rgba(19, 28, 49, 0.85);
+      color: var(--text-secondary);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      padding: 2px 7px;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 0.65rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all var(--transition);
+    }
+
+    .phase-legend-btn:hover {
+      background: var(--bg-card-hover);
+      color: var(--text-primary);
+      border-color: rgba(148, 163, 184, 0.35);
+    }
+
+    .phase-legend-btn.active {
+      background: var(--gold-soft);
+      color: var(--text-primary);
+      border-color: var(--border-strong);
+      box-shadow: 0 0 0 1px rgba(251, 191, 36, 0.25);
+    }
+
+    .phase-legend-btn.moon-btn.active {
+      background: var(--moon-soft);
+      color: #f3e8ff;
+      border-color: var(--moon-border);
+      box-shadow: 0 0 0 1px rgba(192, 132, 252, 0.3);
+    }
+
+    .phase-pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1px 5px;
+      border-radius: 4px;
+      font-size: 0.58rem;
+      font-weight: 800;
+      letter-spacing: 0.03em;
+      line-height: 1.25;
+      border: 1px solid transparent;
+    }
+
+    .phase-pill.phase-s {
+      background: rgba(34, 197, 94, 0.2);
+      color: #86efac;
+      border-color: rgba(34, 197, 94, 0.45);
+    }
+
+    .phase-pill.phase-e {
+      background: rgba(249, 115, 22, 0.2);
+      color: #fdba74;
+      border-color: rgba(249, 115, 22, 0.45);
+    }
+
+    .phase-pill.phase-p {
+      background: rgba(251, 191, 36, 0.22);
+      color: #fde047;
+      border-color: rgba(251, 191, 36, 0.5);
+    }
+
+    .phase-pill.phase-mc {
+      background: rgba(56, 189, 248, 0.18);
+      color: #7dd3fc;
+      border-color: rgba(56, 189, 248, 0.42);
+    }
+
+    .section-actions {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 0.71rem;
+      color: var(--text-muted);
+    }
+
+    /* 4 rows of 3 columns (12 houses) */
+    .houses-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 7px;
+    }
+
+    @media (max-width: 720px) {
+      .houses-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 480px) {
+      .houses-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @keyframes majorTileGlow {
+      0%, 100% {
+        border-color: rgba(251, 191, 36, 0.85);
+        box-shadow:
+          0 0 0 1px rgba(251, 191, 36, 0.45),
+          0 0 12px rgba(251, 191, 36, 0.25),
+          inset 0 0 10px color-mix(in srgb, var(--sign-color) 22%, transparent);
+      }
+      50% {
+        border-color: var(--sign-color);
+        box-shadow:
+          0 0 0 1.5px color-mix(in srgb, var(--sign-color) 85%, #ffffff 15%),
+          0 0 18px color-mix(in srgb, var(--sign-color) 42%, rgba(251, 191, 36, 0.2)),
+          inset 0 0 15px color-mix(in srgb, var(--sign-color) 32%, transparent);
+      }
+    }
+
+    @keyframes minorTileGlow {
+      0%, 100% {
+        border-color: color-mix(in srgb, var(--sign-color) 62%, transparent);
+        box-shadow: inset 0 0 8px color-mix(in srgb, var(--sign-color) 14%, transparent);
+      }
+      50% {
+        border-color: color-mix(in srgb, var(--sign-color) 90%, #ffffff 10%);
+        box-shadow: inset 0 0 12px color-mix(in srgb, var(--sign-color) 22%, transparent);
+      }
+    }
+
+    @keyframes activeDotPing {
+      0%, 100% {
+        transform: scale(1);
+        opacity: 1;
+      }
+      50% {
+        transform: scale(1.35);
+        opacity: 0.6;
+      }
+    }
+
+    .house-tile {
+      position: relative;
+      text-align: left;
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 7px 10px 7px 13px;
+      cursor: pointer;
+      transition: transform var(--transition), background var(--transition), border-color var(--transition), opacity var(--transition), filter var(--transition);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 4px;
+      overflow: hidden;
+      min-height: 54px;
+    }
+
+    .house-tile::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 4px;
+      background: var(--sign-color, var(--gold));
+    }
+
+    .house-tile.is-inactive-cycle {
+      opacity: 0.78;
+    }
+
+    .house-tile.is-dithered {
+      opacity: 0.34;
+      filter: grayscale(0.45) saturate(0.65);
+    }
+
+    .house-tile.is-dithered:hover {
+      opacity: 0.65;
+      filter: grayscale(0.2) saturate(0.85);
+    }
+
+    .house-tile.has-minor-active {
+      background: linear-gradient(
+        135deg,
+        color-mix(in srgb, var(--sign-color) 20%, #131c31),
+        color-mix(in srgb, var(--sign-color) 7%, #0e1525)
+      );
+      animation: minorTileGlow 3.2s ease-in-out infinite;
+    }
+
+    .house-tile.has-major-active {
+      background: linear-gradient(
+        135deg,
+        color-mix(in srgb, var(--sign-color) 30%, #15203b),
+        color-mix(in srgb, var(--gold) 10%, #0e1525)
+      );
+      animation: majorTileGlow 2.4s ease-in-out infinite;
+    }
+
+    .house-tile:hover {
+      background: var(--bg-card-hover);
+      transform: translateY(-2px);
+      z-index: 20;
+    }
+
+    .house-tile.selected {
+      outline: 2px solid #ffffff;
+      outline-offset: 1px;
+      z-index: 15;
+    }
+
+    .house-tile-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+    }
+
+    .house-num-group {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      min-width: 0;
+      flex-wrap: wrap;
+    }
+
+    .house-num {
+      font-size: 0.72rem;
+      font-weight: 800;
+      color: var(--text-primary);
+      letter-spacing: 0.01em;
+    }
+
+    .cycle-indicator-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--sign-color);
+      box-shadow: 0 0 6px var(--sign-color);
+      animation: activeDotPing 2s ease-in-out infinite;
+    }
+
+    .cycle-indicator-dot.major-ring {
+      background: var(--gold);
+      box-shadow: 0 0 0 2px color-mix(in srgb, var(--sign-color) 70%, transparent);
+    }
+
+    .house-phase-badges {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+    }
+
+    .sign-badge {
+      font-size: 0.68rem;
+      font-weight: 700;
+      padding: 1px 7px;
+      border-radius: 999px;
+      background: color-mix(in srgb, var(--sign-color) 20%, transparent);
+      color: var(--sign-color);
+      border: 1px solid color-mix(in srgb, var(--sign-color) 42%, transparent);
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .house-meaning {
+      font-size: 0.7rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      line-height: 1.25;
+    }
+
+    /* Calendar Panel */
+    .calendar-panel {
+      background: rgba(14, 21, 37, 0.92);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .cal-top {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .cal-nav {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .cal-month-label {
+      font-size: 0.92rem;
+      font-weight: 700;
+      min-width: 132px;
+      text-align: center;
+    }
+
+    .preview-banner {
+      font-size: 0.69rem;
+      color: #fde047;
+      background: rgba(251, 191, 36, 0.12);
+      border: 1px solid rgba(251, 191, 36, 0.35);
+      border-radius: var(--radius-sm);
+      padding: 2px 7px;
+      display: none;
+    }
+
+    .preview-banner.active {
+      display: inline-block;
+    }
+
+    .weekdays {
+      display: grid;
+      grid-template-columns: repeat(7, minmax(0, 1fr));
+      gap: 4px;
+      text-align: center;
+      font-size: 0.66rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      padding: 1px 0;
+    }
+
+    .days-grid {
+      display: grid;
+      grid-template-columns: repeat(7, minmax(0, 1fr));
+      gap: 4px;
+    }
+
+    .day-cell {
+      min-height: 70px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      padding: 4px 5px;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 3px;
+      transition: all var(--transition);
+      text-align: left;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .day-cell:hover:not(.empty) {
+      filter: brightness(1.12);
+      border-color: rgba(255, 255, 255, 0.35);
+      transform: translateY(-1px);
+    }
+
+    .day-cell.empty {
+      background: rgba(10, 15, 28, 0.35);
+      border-color: rgba(148, 163, 184, 0.06);
+      cursor: default;
+    }
+
+    .day-cell.is-today {
+      border-color: var(--gold);
+      box-shadow: 0 0 0 1px rgba(251, 191, 36, 0.55);
+    }
+
+    .day-cell.is-selected {
+      border-color: #ffffff;
+      box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.65);
+    }
+
+    .day-cell.has-moon-cycle {
+      box-shadow: inset 0 0 0 1px rgba(192, 132, 252, 0.42);
+    }
+
+    .day-cell.is-next-area-day {
+      box-shadow: 0 0 0 2px #e9d5ff, 0 0 12px rgba(192, 132, 252, 0.65);
+    }
+
+    .day-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 3px;
+    }
+
+    .day-num-wrap {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .day-num {
+      font-size: 0.76rem;
+      font-weight: 800;
+      color: #ffffff;
+      font-variant-numeric: tabular-nums;
+      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.75);
+    }
+
+    .today-tag {
+      font-size: 0.54rem;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      padding: 1px 4px;
+      border-radius: 4px;
+      background: var(--gold);
+      color: #090d16;
+    }
+
+    .day-swatches {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 3px;
+      align-items: center;
+    }
+
+    .color-swatch {
+      width: 17px;
+      height: 17px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 30% 28%, rgba(255, 255, 255, 0.26), rgba(7, 11, 20, 0.35) 75%), var(--swatch-color);
+      border: 1.5px solid rgba(255, 255, 255, 0.52);
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.65);
+      color: #ffffff;
+      font-family: ui-rounded, "SF Pro Rounded", "Segoe UI", Roboto, Inter, sans-serif;
+      font-size: 0.64rem;
+      font-weight: 900;
+      letter-spacing: -0.02em;
+      line-height: 1;
+      font-variant-numeric: tabular-nums;
+      -webkit-font-smoothing: antialiased;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      text-shadow:
+        0 1px 2px rgba(0, 0, 0, 0.95),
+        0 0 3px rgba(0, 0, 0, 0.85);
+      flex: 0 0 auto;
+    }
+
+    .color-swatch.is-moon-swatch {
+      border: 1.5px solid #f3e8ff;
+      box-shadow: 0 0 7px rgba(192, 132, 252, 0.72), 0 1px 4px rgba(0, 0, 0, 0.65);
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 14px;
+      right: 14px;
+      background: #1e293b;
+      color: #f8fafc;
+      border: 1px solid rgba(251, 191, 36, 0.5);
+      padding: 7px 12px;
+      border-radius: var(--radius-sm);
+      font-size: 0.75rem;
+      font-weight: 600;
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(8px);
+      transition: all 200ms ease;
+      z-index: 50;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <div class="topbar-header-row">
+        <div class="brand">
+          <h1>12-House Cycle &amp; Calendar Explorer</h1>
+        </div>
+        <div class="toolbar">
+          <button class="btn active" id="btnAllSigns" type="button">All 12 Signs</button>
+          <button class="btn" id="btnActiveToday" type="button">Active on Selected Date</button>
+          <button class="btn" id="btnTodayJump" type="button">Jump to Today</button>
+          <button class="btn" id="btnCopyCode" type="button">Copy HTML</button>
+        </div>
+      </div>
+
+      <section class="birth-controls-card" aria-label="Chart Sign Settings">
+        <div class="birth-controls-row">
+          <div class="birth-inputs-group">
+            <label class="field-inline" for="sunSignSelect">
+              <span>Sun Sign</span>
+              <select id="sunSignSelect"></select>
+            </label>
+            <label class="field-inline" for="moonSignSelect">
+              <span>Moon Sign</span>
+              <select id="moonSignSelect"></select>
+            </label>
+            <label class="field-inline" for="ascendantSignSelect">
+              <span>Ascendant (Rising Sign)</span>
+              <select id="ascendantSignSelect"></select>
+            </label>
+            <button class="btn btn-sm" id="btnResetSigns" type="button">Reset Signs</button>
+          </div>
+          <p class="chart-summary-inline" id="chartSummaryLine"></p>
+        </div>
+
+        <div class="birth-controls-footer">
+          <span>
+            Need to check your Sun, Moon, and Ascendant (Rising Sign)?
+            <a
+              class="calc-inline-link"
+              href="https://horoscopes.astro-seek.com/free-astro-portrait-horoscope-by-date-of-birth"
+              target="_blank"
+              rel="noopener noreferrer"
+            >Open Astro-Seek Portrait ↗</a>
+          </span>
+          <label class="save-toggle-label" for="saveLocalToggle">
+            <input type="checkbox" id="saveLocalToggle" />
+            <span>Save selections in this browser</span>
+          </label>
+        </div>
+      </section>
+    </header>
+
+    <section class="workspace-grid" aria-label="Guidance Details and Calendar Workspace">
+      <!-- Left (~1/3): Guidance & Date Range Details -->
+      <aside class="info-panel" id="infoPanel" aria-live="polite"></aside>
+
+      <!-- Right (~2/3): 4 Rows of 3 Houses + Calendar -->
+      <div class="right-column">
+        <section class="section-card" aria-label="All 12 Houses">
+          <div class="section-header">
+            <div class="phase-legend" role="group" aria-label="Filter by Cycle Phase">
+              <button class="phase-legend-btn" type="button" data-phase="S" title="Show cycles starting on the selected date">
+                <span class="phase-pill phase-s">S</span> Starting
+              </button>
+              <button class="phase-legend-btn" type="button" data-phase="E" title="Show cycles ending on the selected date">
+                <span class="phase-pill phase-e">E</span> Ending
+              </button>
+              <button class="phase-legend-btn" type="button" data-phase="P" title="Show single-day peak cycles on the selected date">
+                <span class="phase-pill phase-p">P</span> Peak
+              </button>
+              <button class="phase-legend-btn" type="button" data-phase="MC" title="Show cycles in the middle of their window on the selected date">
+                <span class="phase-pill phase-mc">MC</span> Mid-Cycle
+              </button>
+              <button class="phase-legend-btn moon-btn" id="legendMoonBtn" type="button" title="Filter calendar and details to Moon cycles">
+                <span class="moon-icon" aria-hidden="true">☾</span> Moon
+              </button>
+            </div>
+            <div class="section-actions">
+              <span id="selectionCountLabel">All 12 houses</span>
+              <button class="btn btn-sm" id="btnClearSelection" type="button">Clear Selection</button>
+            </div>
+          </div>
+          <div class="houses-grid" id="housesGrid"></div>
+        </section>
+
+        <div class="calendar-panel">
+          <div class="cal-top">
+            <div class="cal-nav">
+              <button class="btn" id="prevMonth" type="button" aria-label="Previous Month">◀</button>
+              <div class="cal-month-label" id="monthLabel">November 2026</div>
+              <button class="btn" id="nextMonth" type="button" aria-label="Next Month">▶</button>
+              <span class="preview-banner" id="previewBanner">Hover Preview Active</span>
+            </div>
+            <div style="font-size: 0.72rem; color: var(--text-secondary);" id="selectedDateSummary">
+              Sunday, November 22, 2026
+            </div>
+          </div>
+
+          <div class="weekdays">
+            <div>Sun</div>
+            <div>Mon</div>
+            <div>Tue</div>
+            <div>Wed</div>
+            <div>Thu</div>
+            <div>Fri</div>
+            <div>Sat</div>
+          </div>
+          <div class="days-grid" id="daysGrid"></div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div class="toast" id="toast">Copied HTML to clipboard</div>
+
+  <script>
+    const TODAY_ISO = "2026-11-22";
+    const STORAGE_KEY = "cycle_explorer_signs_profile_v8";
+
+    const DEFAULT_PROFILE = {
+      sunSign: "",
+      moonSign: "",
+      ascendantSign: "Aries",
+      saveLocal: false
+    };
+
+    const HOUSE_THEMES = [
+      { num: 1, ordinal: "First House", shortTheme: "Self, presence & initiative", description: "Covers how you show up, set your own pace, and take the first step on your own terms." },
+      { num: 2, ordinal: "Second House", shortTheme: "Money, values & steadiness", description: "Covers earned income, spending choices, physical comfort, and what is worth holding onto." },
+      { num: 3, ordinal: "Third House", shortTheme: "Daily talk, neighbors & local world", description: "Covers everyday conversations, nearby errands, local contacts, and practical day-to-day habits." },
+      { num: 4, ordinal: "Fourth House", shortTheme: "Home base, roots & sanctuary", description: "Covers your home setup, family ties, emotional breathing room, and unwinding in private." },
+      { num: 5, ordinal: "Fifth House", shortTheme: "Creativity, joy & warm expression", description: "Covers creative projects, hobbies, fun, and putting your real enthusiasm behind what you enjoy." },
+      { num: 6, ordinal: "Sixth House", shortTheme: "Routines, craft & practical service", description: "Covers daily work habits, practical problem-solving, health routines, and getting useful tasks done." },
+      { num: 7, ordinal: "Seventh House", shortTheme: "Partnerships & one-on-one mirrors", description: "Covers close one-on-one relationships, fair give-and-take, agreements, and how you work with others." },
+      { num: 8, ordinal: "Eighth House", shortTheme: "Deep sorting, shared stakes & release", description: "Covers shared money or responsibilities, trust, tough honest sorting, and letting go of dead weight." },
+      { num: 9, ordinal: "Ninth House", shortTheme: "Ethics, truth & big-picture meaning", description: "Covers personal standards, bigger-picture goals, candid truth, and learning beyond immediate details." },
+      { num: 10, ordinal: "Tenth House", shortTheme: "Public role, vocation & legacy", description: "Covers career direction, public reputation, steady follow-through, and long-term results you stand behind." },
+      { num: 11, ordinal: "Eleventh House", shortTheme: "Community, shared causes & networks", description: "Covers group dynamics, friendships, shared goals, and who shows up reliably over time." },
+      { num: 12, ordinal: "Twelfth House", shortTheme: "Solitude, rest & quiet decompression", description: "Covers quiet downtime, stepping back from constant input, private reflection, and mental recovery." }
+    ];
+
+    const HOUSE_MOON_ADVICE = {
+      1: "Take steady, intentional action on your own priorities rather than reacting to outside pressure.",
+      2: "Review spending, protect your energy and comfort, and stick to practical financial choices.",
+      3: "Keep messages clear, verify details before replying, and streamline daily errands.",
+      4: "Protect quiet time at home, check in on comfort needs, and avoid forcing heavy domestic tasks.",
+      5: "Make room for creative work or genuine enjoyment without turning fun into a performance.",
+      6: "Tidy up daily routines, tackle small practical tasks, and keep health habits realistic.",
+      7: "Listen carefully in one-on-one talks and aim for fair, clear agreements.",
+      8: "Handle shared finances or trust issues with care and let go of commitments that drain you.",
+      9: "Step back for a bigger-picture view, test your assumptions, and speak candidly.",
+      10: "Focus on dependable follow-through and practical steps that support your long-term standing.",
+      11: "Check in on group commitments and invest time where shared goals feel genuine.",
+      12: "Build in quiet downtime, step away from excess noise, and give yourself room to rest."
+    };
+
+    const MOON_PHASE_GUIDANCE = {
+      "New Moon": "Fresh start marker—set a clear, realistic intention or begin a simple habit here.",
+      "First Quarter": "Action & adjustment marker—commit effort, work through early snags, and keep momentum going.",
+      "Full Moon": "Spotlight & wrap-up marker—see what is clear, finish a step, or drop what isn't working.",
+      "Last Quarter": "Trim & close-out marker—cut extras, tie up loose ends, and wrap up before the next step starts."
+    };
+
+    const STANDALONE_MOON_PHASE_DETAILS = {
+      "New Moon": {
+        discClass: "lunar-disc--new",
+        headline: "New Moon — Dark / Beginning of Cycle",
+        pacing: "Quiet starting point; energy is low-key and inward before momentum builds.",
+        summary: "The Moon sits near the Sun with its visible face dark. It is a clean slate for setting a simple intention, resting, and starting small without forcing fast results."
+      },
+      "Waxing Crescent": {
+        discClass: "lunar-disc--waxing-crescent",
+        headline: "Waxing Crescent — Thin Rising Light",
+        pacing: "Early build-up; test ideas lightly and gather what you need.",
+        summary: "A slim illuminated arc is growing after the New Moon. Good for taking first steps, testing plans, and spotting what needs adjustment early."
+      },
+      "First Quarter": {
+        discClass: "lunar-disc--first-quarter",
+        headline: "First Quarter — Half-Lit Rising Push",
+        pacing: "Decision and action point; commit effort and work through friction.",
+        summary: "Half of the Moon is illuminated as the cycle reaches its first turning point. Useful for making a choice, solving practical snags, and pushing a plan forward."
+      },
+      "Waxing Gibbous": {
+        discClass: "lunar-disc--waxing-gibbous",
+        headline: "Waxing Gibbous — Mostly Lit Build-Up",
+        pacing: "Refining and tuning; polish details ahead of the Full Moon peak.",
+        summary: "More than half of the Moon is bright as illumination builds toward full. A strong stretch to fine-tune routines, adjust course, and build toward completion."
+      },
+      "Full Moon": {
+        discClass: "lunar-disc--full",
+        headline: "Full Moon — Full Bright Disc",
+        pacing: "Peak visibility and culmination; things stand out clearly.",
+        summary: "The Moon's face is fully illuminated opposite the Sun. Situations, feelings, and outcomes tend to feel clearer—ideal for seeing what's working, wrapping up a step, or releasing extras."
+      },
+      "Waning Gibbous": {
+        discClass: "lunar-disc--waning-gibbous",
+        headline: "Waning Gibbous — Gradually Dimming",
+        pacing: "Sharing, sorting, and winding down from the peak.",
+        summary: "Illumination begins easing back after the Full Moon. Helpful for passing along what you've learned, sorting priorities, and lightening your load."
+      },
+      "Last Quarter": {
+        discClass: "lunar-disc--last-quarter",
+        headline: "Last Quarter — Half-Lit Waning Trim",
+        pacing: "Clearing out and closing loops before the next cycle starts.",
+        summary: "Half of the Moon remains lit on the waning side of the cycle. A practical checkpoint to trim commitments, finish loose ends, and step back from excess."
+      },
+      "Waning Crescent": {
+        discClass: "lunar-disc--waning-crescent",
+        headline: "Waning Crescent — Thin Closing Arc",
+        pacing: "Rest, decompression, and quiet reset ahead of the New Moon.",
+        summary: "Only a slim crescent remains before darkness returns. Best used for rest, mental quiet, and wrapping up unfinished tasks so you enter the next New Moon unburdened."
+      }
+    };
+
+    const MOON_TRANSIT_SEGMENTS = [
+      {
+        sign: "Taurus",
+        start: "2026-11-21",
+        end: "2026-11-23",
+        label: "Moon in Taurus",
+        meaning: "A steady focus on physical rest, comfort, and practical spending or resource habits.",
+        guidance: "Catch up on sleep and physical comfort, and keep money or daily routines simple and unhurried."
+      },
+      {
+        sign: "Gemini",
+        start: "2026-11-23",
+        end: "2026-11-25",
+        label: "Moon in Gemini",
+        meaning: "A busier, more talkative stretch focused on messages, errands, and shifting ideas.",
+        guidance: "Keep notes clear, double-check details before replying, and stay flexible with daily schedules."
+      },
+      {
+        sign: "Cancer",
+        start: "2026-11-25",
+        end: "2026-11-28",
+        label: "Moon in Cancer",
+        meaning: "A more sensitive stretch centered on home comfort, family mood, and needing quiet downtime.",
+        guidance: "Protect your personal space and energy so small emotional friction doesn't wear you down."
+      },
+      {
+        sign: "Leo",
+        start: "2026-11-28",
+        end: "2026-11-30",
+        label: "Moon in Leo",
+        meaning: "A warmer, more energetic stretch favoring creative spark, play, and direct self-expression.",
+        guidance: "Spend time on what genuinely interests you and bring warmth into what you're working on."
+      },
+      {
+        sign: "Virgo",
+        start: "2026-11-30",
+        end: "2026-12-02",
+        label: "Moon in Virgo",
+        meaning: "A practical stretch suited to organizing tasks, fixing small glitches, and tidying up.",
+        guidance: "Make a short checklist, clear small chores, and keep expectations grounded."
+      },
+      {
+        sign: "Libra",
+        start: "2026-12-02",
+        end: "2026-12-05",
+        label: "Moon in Libra",
+        meaning: "A focus on fairness, one-on-one balance, and finding workable middle ground.",
+        guidance: "Talk things through calmly and look for agreements that feel fair to both sides."
+      },
+      {
+        sign: "Scorpio",
+        start: "2026-12-05",
+        end: "2026-12-07",
+        label: "Moon in Scorpio",
+        meaning: "A more focused stretch on trust, shared responsibilities, and sorting out what matters beneath the surface.",
+        guidance: "Keep private matters private and put your attention where there is real substance."
+      },
+      {
+        sign: "Sagittarius",
+        start: "2026-12-07",
+        end: "2026-12-09",
+        label: "Moon in Sagittarius",
+        meaning: "A wider-angle stretch favoring candid talk, learning, and stepping back from minor details.",
+        guidance: "Focus on the bigger picture and say what you mean plainly without overcommitting."
+      },
+      {
+        sign: "Capricorn",
+        start: "2026-12-09",
+        end: "2026-12-12",
+        label: "Moon in Capricorn",
+        meaning: "A practical, task-focused stretch favoring structure, steady work, and handling responsibilities.",
+        guidance: "Stick to concrete steps and pace yourself rather than rushing everything at once."
+      },
+      {
+        sign: "Aquarius",
+        start: "2026-12-12",
+        end: "2026-12-14",
+        label: "Moon in Aquarius",
+        meaning: "A clear-headed stretch favoring fresh ideas, stepping back, and checking in on group plans.",
+        guidance: "Take an objective look at group dynamics and give yourself room to think independently."
+      },
+      {
+        sign: "Pisces",
+        start: "2026-12-14",
+        end: "2026-12-17",
+        label: "Moon in Pisces",
+        meaning: "A quieter, more low-key stretch favoring rest, gut instincts, and stepping away from constant noise.",
+        guidance: "Build in quiet downtime and avoid forcing rigid plans when low-pressure space works better."
+      },
+      {
+        sign: "Aries",
+        start: "2026-12-17",
+        end: "2026-12-19",
+        label: "Moon in Aries",
+        meaning: "A brisker push favoring quick action, directness, and getting things moving.",
+        guidance: "Pick one clear priority to move forward and don't let small irritations spark unnecessary heat."
+      },
+      {
+        sign: "Taurus",
+        start: "2026-12-19",
+        end: "2026-12-21",
+        label: "Moon in Taurus",
+        meaning: "A steady focus on physical comfort, sensible pacing, and everyday security.",
+        guidance: "Keep plans practical, rest when tired, and avoid impulsive spending."
+      },
+      {
+        sign: "Gemini",
+        start: "2026-12-21",
+        end: "2026-12-23",
+        label: "Moon in Gemini",
+        meaning: "A lively stretch of conversations, quick decisions, and tying up everyday details.",
+        guidance: "Stay organized with messages and wrap up small loose ends before the holiday stretch."
+      },
+      {
+        sign: "Cancer",
+        start: "2026-12-23",
+        end: "2026-12-26",
+        label: "Moon in Cancer",
+        meaning: "A sensitive stretch centered on home comfort, family dynamics, and personal boundaries.",
+        guidance: "Make room to recharge and set calm, clear limits if family or home demands pile up."
+      },
+      {
+        sign: "Leo",
+        start: "2026-12-26",
+        end: "2026-12-28",
+        label: "Moon in Leo",
+        meaning: "A warmer stretch favoring creative energy, enjoyment, and lively company.",
+        guidance: "Lean into what brings genuine enjoyment and keep things upbeat and straightforward."
+      },
+      {
+        sign: "Virgo",
+        start: "2026-12-28",
+        end: "2026-12-30",
+        label: "Moon in Virgo",
+        meaning: "A practical stretch for sorting schedules, organizing tasks, and getting ahead of details.",
+        guidance: "Clean up loose ends and map out simple next steps for the final days of the year."
+      },
+      {
+        sign: "Libra",
+        start: "2026-12-30",
+        end: "2027-01-01",
+        label: "Moon in Libra",
+        meaning: "A balanced stretch focused on smooth interactions, fairness, and steady pacing.",
+        guidance: "Keep plans cooperative and clear as you close out the year."
+      }
+    ];
+
+    const LUNATION_MARKERS = [
+      { id: "lun-nov24", sign: "Gemini", date: "2026-11-24", moonPhase: "Full Moon", label: "Full Moon in Gemini", aspectType: "Full Moon", meaning: "A clear moment of realization or wrap-up around daily talk, decisions, or local plans.", guidance: "Pay attention to what becomes obvious in everyday conversations and act on clear facts." },
+      { id: "lun-dec01", sign: "Pisces", date: "2026-12-01", moonPhase: "Last Quarter", label: "Last Quarter Moon in Pisces", aspectType: "Last Quarter Moon", meaning: "A wind-down checkpoint to clear mental clutter, ease off over-giving, and let go of loose ends.", guidance: "Step back from extra noise and wrap up what doesn't need to carry into the next cycle." },
+      { id: "lun-dec08", sign: "Sagittarius", date: "2026-12-08", moonPhase: "New Moon", label: "New Moon in Sagittarius", aspectType: "New Moon", meaning: "A fresh starting point for your bigger-picture direction, personal standards, and honest goals.", guidance: "Choose one meaningful direction you genuinely believe in and take a practical first step." },
+      { id: "lun-dec16", sign: "Pisces", date: "2026-12-16", moonPhase: "First Quarter", label: "First Quarter Moon in Pisces", aspectType: "First Quarter Moon", meaning: "A mid-cycle push to turn quiet ideas or hunches into steady, real-world action.", guidance: "Follow through on what you started while keeping boundaries realistic." },
+      { id: "lun-dec23", sign: "Cancer", date: "2026-12-23", moonPhase: "Full Moon", label: "Full Moon in Cancer", aspectType: "Full Moon", meaning: "A strong checkpoint around home comfort, family needs, setting clear limits early, and getting real rest.", guidance: "Don't wait until you're burned out to set boundaries—protect rest and keep home life manageable." },
+      { id: "lun-dec30", sign: "Libra", date: "2026-12-30", moonPhase: "Last Quarter", label: "Last Quarter Moon in Libra", aspectType: "Last Quarter Moon", meaning: "A wrap-up point for one-on-one agreements, fairness, and trimming commitments that feel lopsided.", guidance: "Clear up lingering relationship or agreement details before starting the new year." },
+      { id: "lun-jan07", sign: "Capricorn", date: "2027-01-07", moonPhase: "New Moon", label: "New Moon in Capricorn", aspectType: "New Moon", meaning: "A practical starting point for steady work, structure, and long-term goals.", guidance: "Pick one realistic target and build a simple routine you can stick with." },
+      { id: "lun-jan14", sign: "Aries", date: "2027-01-14", moonPhase: "First Quarter", label: "First Quarter Moon in Aries", aspectType: "First Quarter Moon", meaning: "A push to take decisive action, push past hesitation, and test your momentum.", guidance: "Move forward directly on your main priority and adjust quickly if something needs tweaking." }
+    ];
+
+    const SYNODIC_MONTH_DAYS = 29.530588;
+    const REFERENCE_NEW_MOON_ISO = "2026-12-08";
+
+    function isoToUtcDayNumber(isoStr) {
+      const [y, m, d] = isoStr.split("-").map(Number);
+      return Date.UTC(y, m - 1, d) / 86400000;
+    }
+
+    function getLunarCycleInfoForDate(isoStr) {
+      const exactLunation = LUNATION_MARKERS.find((l) => l.date === isoStr);
+      const refDay = isoToUtcDayNumber(REFERENCE_NEW_MOON_ISO);
+      const curDay = isoToUtcDayNumber(isoStr);
+      const rawAge = (curDay - refDay) % SYNODIC_MONTH_DAYS;
+      const cycleAge = rawAge < 0 ? rawAge + SYNODIC_MONTH_DAYS : rawAge;
+      const cycleFraction = cycleAge / SYNODIC_MONTH_DAYS;
+      // Illumination approximation (0 at New Moon, 1 at Full Moon)
+      const illuminationPct = Math.round(((1 - Math.cos(cycleFraction * Math.PI * 2)) / 2) * 100);
+
+      let phaseName = "Waxing Crescent";
+      if (exactLunation) {
+        phaseName = exactLunation.moonPhase;
+      } else if (cycleAge < 1.0 || cycleAge > SYNODIC_MONTH_DAYS - 1.0) {
+        phaseName = "New Moon";
+      } else if (cycleAge < 6.5) {
+        phaseName = "Waxing Crescent";
+      } else if (cycleAge < 8.5) {
+        phaseName = "First Quarter";
+      } else if (cycleAge < 13.8) {
+        phaseName = "Waxing Gibbous";
+      } else if (cycleAge < 15.8) {
+        phaseName = "Full Moon";
+      } else if (cycleAge < 21.2) {
+        phaseName = "Waning Gibbous";
+      } else if (cycleAge < 23.2) {
+        phaseName = "Last Quarter";
+      } else {
+        phaseName = "Waning Crescent";
+      }
+
+      const detail = STANDALONE_MOON_PHASE_DETAILS[phaseName] || STANDALONE_MOON_PHASE_DETAILS["Waxing Crescent"];
+      const transitSeg = MOON_TRANSIT_SEGMENTS.find((seg) => isoStr >= seg.start && isoStr <= seg.end);
+
+      return {
+        phaseName,
+        discClass: detail.discClass,
+        headline: detail.headline,
+        pacing: detail.pacing,
+        summary: detail.summary,
+        cycleDay: Math.max(1, Math.min(30, Math.round(cycleAge) + 1)),
+        illuminationPct,
+        transitSign: transitSeg ? transitSeg.sign : null,
+        exactLunationLabel: exactLunation ? exactLunation.label : null
+      };
+    }
+
+    function inferMoonPhaseForCycle(cycle) {
+      if (cycle.moonPhase) return cycle.moonPhase;
+      const lower = (cycle.label || "").toLowerCase();
+      if (lower.includes("new moon")) return "New Moon";
+      if (lower.includes("first quarter")) return "First Quarter";
+      if (lower.includes("full moon")) return "Full Moon";
+      if (lower.includes("last quarter")) return "Last Quarter";
+      return null;
+    }
+
+    const BASE_SIGN_CYCLES_DATA = [
+      {
+        sign: "Aries",
+        color: "#ef4444",
+        cycles: [
+          {
+            id: "aries-saturn-rx",
+            tier: "major",
+            priority: 1,
+            label: "Saturn in Aries (Retrograde)",
+            aspectType: "Retrograde Transit",
+            start: "2026-07-26",
+            end: "2026-12-10",
+            color: "#ef4444",
+            meaning: "A longer stretch to tighten personal limits, take full ownership of your choices, and see what holds up when you take the lead.",
+            guidance: "Check where you overcommit or wait on others to go first; set clear limits you can realistically stick to."
+          },
+          {
+            id: "aries-neptune-rx",
+            tier: "major",
+            priority: 2,
+            label: "Neptune in Aries (Retrograde)",
+            aspectType: "Retrograde Transit",
+            start: "2026-07-07",
+            end: "2026-12-12",
+            color: "#ef4444",
+            meaning: "A longer stretch to clear out wishful thinking, mixed signals, or putting off what you know you need to act on.",
+            guidance: "Separate what's actually realistic from hoping a problem fixes itself before making big moves."
+          },
+          {
+            id: "aries-stations",
+            tier: "major",
+            priority: 3,
+            label: "Saturn & Neptune Shift Forward",
+            aspectType: "Station Direct Window",
+            start: "2026-12-10",
+            end: "2026-12-12",
+            color: "#ef4444",
+            meaning: "Moving forward with clearer limits, steadier follow-through, and cleaner intentions once fall sorting wraps up.",
+            guidance: "Use mid-December to act decisively on the boundaries and priorities that became clear over the fall."
+          }
+        ]
+      },
+      {
+        sign: "Taurus",
+        color: "#22c55e",
+        cycles: []
+      },
+      {
+        sign: "Gemini",
+        color: "#eab308",
+        cycles: [
+          {
+            id: "gemini-uranus-rx",
+            tier: "major",
+            priority: 4,
+            label: "Uranus in Gemini (Retrograde)",
+            aspectType: "Retrograde Transit",
+            start: "2026-09-10",
+            end: "2027-02-08",
+            color: "#eab308",
+            meaning: "A multi-month stretch to rethink how you communicate, listen, and handle everyday routines and local contacts.",
+            guidance: "Test clearer, less reactive ways of talking through issues and stay flexible with daily schedules."
+          },
+          {
+            id: "gemini-uranus-pluto",
+            tier: "minor",
+            priority: 10,
+            label: "Uranus in Gemini aligns with Pluto in Aquarius",
+            aspectType: "Planetary Alignment",
+            start: "2026-11-29",
+            end: "2026-11-29",
+            color: "#eab308",
+            meaning: "Everyday conversations and practical tweaks lining up with deeper, lasting shifts in group trust and community ties.",
+            guidance: "Use a straightforward local conversation or small habit change to build healthier group dynamics."
+          }
+        ]
+      },
+      {
+        sign: "Cancer",
+        color: "#38bdf8",
+        cycles: [
+          {
+            id: "cancer-baseline",
+            tier: "major",
+            priority: 5,
+            label: "Quiet Cancer Baseline Window",
+            aspectType: "Seasonal Baseline",
+            start: "2026-11-21",
+            end: "2026-12-22",
+            color: "#38bdf8",
+            meaning: "A steadier stretch with less outside pressure forcing major changes at home or in your personal base.",
+            guidance: "Use home as a reliable place to recharge and don't create unnecessary urgency."
+          }
+        ]
+      },
+      {
+        sign: "Leo",
+        color: "#f59e0b",
+        cycles: [
+          {
+            id: "leo-mars-push",
+            tier: "minor",
+            priority: 12,
+            label: "Mars in Leo Push",
+            aspectType: "Ingressed Transit",
+            start: "2026-11-21",
+            end: "2026-11-25",
+            color: "#f59e0b",
+            meaning: "An active few days of energy for creative work, fun, and putting yourself behind what excites you.",
+            guidance: "Push forward or wrap up a creative or personal project you care about before late November."
+          },
+          {
+            id: "leo-jupiter-rx",
+            tier: "major",
+            priority: 6,
+            label: "Jupiter in Leo (Retrograde)",
+            aspectType: "Retrograde Transit",
+            start: "2026-12-12",
+            end: "2027-04-12",
+            color: "#f59e0b",
+            meaning: "Shifting from chasing outward growth or attention to focusing on what genuinely feels rewarding and alive to you.",
+            guidance: "Put energy into real enjoyment, craft, and honest priorities rather than spreading yourself thin."
+          }
+        ]
+      },
+      {
+        sign: "Virgo",
+        color: "#84cc16",
+        cycles: [
+          {
+            id: "virgo-mars-work",
+            tier: "minor",
+            priority: 13,
+            label: "Mars in Virgo Work Window",
+            aspectType: "Ingressed Transit",
+            start: "2026-11-25",
+            end: "2026-12-31",
+            color: "#84cc16",
+            meaning: "A multi-week push of practical energy for daily routines, organizing tasks, fixing loose ends, and steady work.",
+            guidance: "Use checklists, clean up messy workflows, keep health habits steady, and tackle tasks one by one."
+          }
+        ]
+      },
+      {
+        sign: "Libra",
+        color: "#ec4899",
+        cycles: [
+          {
+            id: "libra-venus-settling",
+            tier: "major",
+            priority: 7,
+            label: "Venus Post-Review Settling Window",
+            aspectType: "Post-Retrograde Integration",
+            start: "2026-11-21",
+            end: "2026-12-15",
+            color: "#ec4899",
+            meaning: "A settling window to put recent relationship questions on steadier footing and build fairer give-and-take.",
+            guidance: "Follow through on honest one-on-one agreements and let recent tension settle into clear terms."
+          }
+        ]
+      },
+      {
+        sign: "Scorpio",
+        color: "#a855f7",
+        cycles: [
+          {
+            id: "scorpio-sun-exit",
+            tier: "minor",
+            priority: 14,
+            label: "Sun Exiting Scorpio",
+            aspectType: "Solar Ingress Boundary",
+            start: "2026-11-21",
+            end: "2026-11-21",
+            color: "#a855f7",
+            meaning: "Wrapping up heavier behind-the-scenes sorting and shifting out of intense emotional weight.",
+            guidance: "Close out lingering shared-resource or private loose ends so you aren't dragging old weight forward."
+          },
+          {
+            id: "scorpio-mercury-post",
+            tier: "minor",
+            priority: 15,
+            label: "Mercury Post-Review in Scorpio",
+            aspectType: "Post-Retrograde Transit",
+            start: "2026-11-21",
+            end: "2026-11-30",
+            color: "#a855f7",
+            meaning: "Finishing up candid conversations, private sorting, and shared-responsibility details beneath the surface.",
+            guidance: "Wrap up sensitive talks, shared finances, or personal decisions before the end of the month."
+          }
+        ]
+      },
+      {
+        sign: "Sagittarius",
+        color: "#6366f1",
+        cycles: [
+          {
+            id: "sag-sun-spotlight",
+            tier: "minor",
+            priority: 16,
+            label: "Sun in Sagittarius Spotlight",
+            aspectType: "Solar Season Transit",
+            start: "2026-11-21",
+            end: "2026-12-21",
+            color: "#6366f1",
+            meaning: "A month-long focus on your bigger-picture direction, personal values, learning, and speaking plainly.",
+            guidance: "Line up choices with what you actually value and be direct without sugarcoating things."
+          }
+        ]
+      },
+      {
+        sign: "Capricorn",
+        color: "#64748b",
+        cycles: [
+          {
+            id: "cap-sun-season",
+            tier: "minor",
+            priority: 17,
+            label: "Sun Enters Capricorn",
+            aspectType: "Seasonal Solar Focus",
+            start: "2026-12-21",
+            end: "2027-01-19",
+            color: "#64748b",
+            meaning: "A seasonal shift toward practical responsibility, steady discipline, and turning plans into real, visible work.",
+            guidance: "Set clear milestones for your work and responsibilities and judge progress by what gets finished."
+          }
+        ]
+      },
+      {
+        sign: "Aquarius",
+        color: "#06b6d4",
+        cycles: [
+          {
+            id: "aq-pluto-shift",
+            tier: "major",
+            priority: 8,
+            label: "Pluto in Aquarius (Multi-Year Shift)",
+            aspectType: "Outer Planet Transit",
+            start: "2026-11-21",
+            end: "2027-05-31",
+            color: "#06b6d4",
+            meaning: "Long-term changes in how groups work, who proves dependable, and how shared responsibilities are carried.",
+            guidance: "Put your energy into communities and projects with real integrity and stay clear-eyed about group dynamics."
+          },
+          {
+            id: "aq-pluto-uranus",
+            tier: "minor",
+            priority: 18,
+            label: "Pluto in Aquarius with Uranus in Gemini",
+            aspectType: "Harmonic / Aspect Window",
+            start: "2026-11-29",
+            end: "2026-11-29",
+            color: "#06b6d4",
+            meaning: "Everyday local exchanges supporting deeper, lasting changes in group life and shared goals.",
+            guidance: "Look for practical ways day-to-day conversations strengthen healthier long-term group ties."
+          }
+        ]
+      },
+      {
+        sign: "Pisces",
+        color: "#8b5cf6",
+        cycles: [
+          {
+            id: "pisces-merc-winter",
+            tier: "minor",
+            priority: 20,
+            label: "Mercury in Pisces (Winter)",
+            aspectType: "Mercury Transit",
+            start: "2027-01-31",
+            end: "2027-02-18",
+            color: "#8b5cf6",
+            meaning: "A quieter stretch favoring rest, gut checks, and stepping back from constant input to sort things out privately.",
+            guidance: "Give quiet reflection room before locking in rigid decisions."
+          },
+          {
+            id: "pisces-merc-spring",
+            tier: "minor",
+            priority: 21,
+            label: "Mercury in Pisces (Spring Return)",
+            aspectType: "Mercury Transit",
+            start: "2027-03-18",
+            end: "2027-04-08",
+            color: "#8b5cf6",
+            meaning: "Another quieter stretch to step back from noise, rest your head, and review what's going on beneath the surface.",
+            guidance: "Use solo downtime to decompress and take stock before jumping into loud commitments."
+          }
+        ]
+      }
+    ];
+
+    function buildSignCyclesData() {
+      return BASE_SIGN_CYCLES_DATA.map((s) => {
+        const moonTransits = MOON_TRANSIT_SEGMENTS
+          .filter((seg) => seg.sign === s.sign)
+          .map((seg, idx) => ({
+            id: `moon-${s.sign.toLowerCase()}-${seg.start}-${idx}`,
+            tier: "minor",
+            priority: 18 + idx,
+            isMoonCycle: true,
+            label: seg.label,
+            aspectType: "Moon Transit",
+            start: seg.start,
+            end: seg.end,
+            color: s.color,
+            meaning: seg.meaning,
+            guidance: seg.guidance
+          }));
+
+        const lunations = LUNATION_MARKERS
+          .filter((lun) => lun.sign === s.sign)
+          .map((lun) => ({
+            id: lun.id,
+            tier: "minor",
+            priority: 9,
+            isMoonCycle: true,
+            moonPhase: lun.moonPhase,
+            label: lun.label,
+            aspectType: lun.aspectType,
+            start: lun.date,
+            end: lun.date,
+            color: s.color,
+            meaning: lun.meaning,
+            guidance: lun.guidance
+          }));
+
+        return {
+          ...s,
+          cycles: [...s.cycles, ...lunations, ...moonTransits]
+        };
+      });
+    }
+
+    const SIGN_CYCLES_DATA = buildSignCyclesData();
+
+    function loadSavedProfile() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return { ...DEFAULT_PROFILE };
+        const parsed = JSON.parse(raw);
+        return { ...DEFAULT_PROFILE, ...parsed };
+      } catch (_) {
+        return { ...DEFAULT_PROFILE };
+      }
+    }
+
+    function persistProfile(profile) {
+      if (!profile.saveLocal) {
+        try {
+          localStorage.removeItem(STORAGE_KEY);
+        } catch (_) {}
+        return;
+      }
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(profile));
+      } catch (_) {}
+    }
+
+    const state = {
+      profile: loadSavedProfile(),
+      selectedHouseNums: [],
+      selectedPhaseCodes: [], // "S" | "E" | "P" | "MC"
+      moonOnlyFilter: false,
+      nextAreaFilter: null, // { sourceCycleId, targetCycleId, houseNum, sign, start, end, label } | null
+      selectedDate: TODAY_ISO,
+      viewYear: 2026,
+      viewMonth: 10, // November 2026
+      showAllSigns: true,
+      filterActiveOnDate: false,
+      detailMode: "today", // "today" | "milestones" | "midcycle"
+      expandedCycleIds: new Set(),
+      hoverPreview: null
+    };
+
+    function getRotatedHouses() {
+      const ascendantIdx = Math.max(
+        0,
+        SIGN_CYCLES_DATA.findIndex((s) => s.sign === state.profile.ascendantSign)
+      );
+
+      return HOUSE_THEMES.map((theme, i) => {
+        const signObj = SIGN_CYCLES_DATA[(ascendantIdx + i) % 12];
+        const placementNotes = [];
+
+        if (state.profile.sunSign && state.profile.sunSign === signObj.sign) {
+          placementNotes.push(`Sun in ${signObj.sign}`);
+        }
+        if (state.profile.moonSign && state.profile.moonSign === signObj.sign) {
+          placementNotes.push(`Moon in ${signObj.sign}`);
+        }
+
+        return {
+          num: theme.num,
+          ordinal: theme.ordinal,
+          sign: signObj.sign,
+          color: signObj.color,
+          shortTheme: theme.shortTheme,
+          description: theme.description,
+          natalNote: placementNotes.join(" • "),
+          cycles: signObj.cycles
+        };
+      });
+    }
+
+    function findNextAreaForCycle(houses, currentHouse, currentCycle) {
+      const allMoonChronological = [];
+      for (const h of houses) {
+        for (const c of h.cycles) {
+          if (c.isMoonCycle) {
+            allMoonChronological.push({ house: h, cycle: c });
+          }
+        }
+      }
+
+      allMoonChronological.sort((a, b) => {
+        if (a.cycle.start !== b.cycle.start) return a.cycle.start.localeCompare(b.cycle.start);
+        return a.cycle.end.localeCompare(b.cycle.end);
+      });
+
+      const currentIdx = allMoonChronological.findIndex((item) => item.cycle.id === currentCycle.id);
+      if (currentIdx !== -1) {
+        for (let i = currentIdx + 1; i < allMoonChronological.length; i++) {
+          const candidate = allMoonChronological[i];
+          if (
+            candidate.cycle.id !== currentCycle.id &&
+            (candidate.cycle.start > currentCycle.end ||
+              (candidate.cycle.start >= currentCycle.start && candidate.cycle.label !== currentCycle.label))
+          ) {
+            return {
+              sourceCycleId: currentCycle.id,
+              targetCycleId: candidate.cycle.id,
+              houseNum: candidate.house.num,
+              sign: candidate.house.sign,
+              start: candidate.cycle.start,
+              end: candidate.cycle.end,
+              label: candidate.cycle.label
+            };
+          }
+        }
+      }
+
+      const sameHouseNext = currentHouse.cycles
+        .filter((c) => c.id !== currentCycle.id && c.start > currentCycle.start)
+        .sort((a, b) => a.start.localeCompare(b.start))[0];
+
+      if (sameHouseNext) {
+        return {
+          sourceCycleId: currentCycle.id,
+          targetCycleId: sameHouseNext.id,
+          houseNum: currentHouse.num,
+          sign: currentHouse.sign,
+          start: sameHouseNext.start,
+          end: sameHouseNext.end,
+          label: sameHouseNext.label
+        };
+      }
+
+      return null;
+    }
+
+    function activateNextAreaFilter(nextArea) {
+      if (!nextArea) return;
+      if (state.nextAreaFilter && state.nextAreaFilter.targetCycleId === nextArea.targetCycleId) {
+        state.nextAreaFilter = null;
+        renderAll();
+        return;
+      }
+
+      state.nextAreaFilter = nextArea;
+      state.selectedDate = nextArea.start;
+      const [y, m] = nextArea.start.split("-").map(Number);
+      state.viewYear = y;
+      state.viewMonth = m - 1;
+      state.expandedCycleIds.add(nextArea.targetCycleId);
+      renderAll();
+    }
+
+    function toISO(y, m, d) {
+      return `${y}-${String(m + 1).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
+    }
+
+    function formatShortMMDDYYYY(isoStr) {
+      if (!isoStr || !/^\d{4}-\d{2}-\d{2}$/.test(isoStr)) return "";
+      const [y, m, d] = isoStr.split("-");
+      return `${m}/${d}/${y}`;
+    }
+
+    const SHORT_MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+    function formatMonDay(isoStr) {
+      if (!isoStr || !/^\d{4}-\d{2}-\d{2}$/.test(isoStr)) return isoStr || "";
+      const [, m, d] = isoStr.split("-").map(Number);
+      return `${SHORT_MONTHS[m - 1]} ${d}`;
+    }
+
+    function formatMonDayRange(startISO, endISO) {
+      if (startISO === endISO) return formatMonDay(startISO);
+      return `${formatMonDay(startISO)} → ${formatMonDay(endISO)}`;
+    }
+
+    function formatReadableDate(isoStr) {
+      const [y, m, d] = isoStr.split("-").map(Number);
+      const dt = new Date(Date.UTC(y, m - 1, d));
+      return dt.toLocaleDateString("en-US", {
+        weekday: "long",
+        month: "long",
+        day: "numeric",
+        year: "numeric",
+        timeZone: "UTC"
+      });
+    }
+
+    function formatDateRange(cycle) {
+      return formatMonDayRange(cycle.start, cycle.end);
+    }
+
+    function isDateInRange(dateISO, startISO, endISO) {
+      return dateISO >= startISO && dateISO <= endISO;
+    }
+
+    function isMidCycleOnDate(cycle, dateISO) {
+      if (!isDateInRange(dateISO, cycle.start, cycle.end)) return false;
+      if (cycle.start === cycle.end) return false;
+      return dateISO > cycle.start && dateISO < cycle.end;
+    }
+
+    function isMilestoneOnDate(cycle, dateISO) {
+      return dateISO === cycle.start || dateISO === cycle.end;
+    }
+
+    function isUpcomingCycle(cycle, dateISO) {
+      return cycle.start > dateISO;
+    }
+
+    function getCyclePhaseCodesOnDate(cycle, dateISO) {
+      const codes = new Set();
+      if (!isDateInRange(dateISO, cycle.start, cycle.end)) return [];
+      if (cycle.start === cycle.end && dateISO === cycle.start) {
+        codes.add("P");
+      } else {
+        if (dateISO === cycle.start) codes.add("S");
+        if (dateISO === cycle.end) codes.add("E");
+        if (isMidCycleOnDate(cycle, dateISO)) codes.add("MC");
+      }
+      return ["S", "E", "P", "MC"].filter((k) => codes.has(k));
+    }
+
+    function getHousePhaseCodesForDate(house, dateISO) {
+      const codes = new Set();
+      for (const c of house.cycles) {
+        for (const p of getCyclePhaseCodesOnDate(c, dateISO)) {
+          codes.add(p);
+        }
+      }
+      return ["S", "E", "P", "MC"].filter((k) => codes.has(k));
+    }
+
+    function houseMatchesSelectedPhases(house, dateISO) {
+      if (state.selectedPhaseCodes.length === 0) return true;
+      const codes = getHousePhaseCodesForDate(house, dateISO);
+      return state.selectedPhaseCodes.some((p) => codes.includes(p));
+    }
+
+    function cycleMatchesSelectedPhases(cycle, dateISO) {
+      if (state.selectedPhaseCodes.length === 0) return true;
+      const codes = getCyclePhaseCodesOnDate(cycle, dateISO);
+      return state.selectedPhaseCodes.some((p) => codes.includes(p));
+    }
+
+    function getFilteredCyclesForHouse(house, dateISO) {
+      if (state.nextAreaFilter) {
+        return house.cycles.filter((c) => c.id === state.nextAreaFilter.targetCycleId);
+      }
+
+      let list = [];
+      if (state.detailMode === "today") {
+        list = house.cycles.filter((c) => isDateInRange(dateISO, c.start, c.end));
+      } else if (state.detailMode === "milestones") {
+        list = house.cycles.filter(
+          (c) => isMilestoneOnDate(c, dateISO) || isUpcomingCycle(c, dateISO)
+        );
+      } else if (state.detailMode === "midcycle") {
+        list = house.cycles.filter((c) => isMidCycleOnDate(c, dateISO));
+      }
+
+      if (state.moonOnlyFilter) {
+        list = list.filter((c) => Boolean(c.isMoonCycle));
+      }
+
+      if (state.selectedPhaseCodes.length > 0) {
+        list = list.filter((c) => {
+          if (isUpcomingCycle(c, dateISO)) return false;
+          return cycleMatchesSelectedPhases(c, dateISO);
+        });
+      }
+
+      return list;
+    }
+
+    function sortGuidanceEntries(entries) {
+      return [...entries].sort((a, b) => {
+        if (a.cycle.tier !== b.cycle.tier) {
+          return a.cycle.tier === "major" ? -1 : 1;
+        }
+        return (a.cycle.priority ?? 99) - (b.cycle.priority ?? 99);
+      });
+    }
+
+    function getOrderedGuidanceEntries(houses) {
+      const filteredHouses =
+        state.selectedHouseNums.length > 0
+          ? houses.filter((h) => state.selectedHouseNums.includes(h.num))
+          : houses;
+
+      const entries = [];
+      for (const h of filteredHouses) {
+        const cycles = getFilteredCyclesForHouse(h, state.selectedDate);
+        for (const c of cycles) {
+          const isUpcoming = !state.nextAreaFilter && isUpcomingCycle(c, state.selectedDate);
+          entries.push({
+            house: h,
+            cycle: c,
+            mid: isMidCycleOnDate(c, state.selectedDate),
+            isUpcoming,
+            nextArea: findNextAreaForCycle(houses, h, c)
+          });
+        }
+      }
+
+      if (state.detailMode === "milestones" && !state.nextAreaFilter) {
+        const currentOrToday = sortGuidanceEntries(entries.filter((e) => !e.isUpcoming));
+        const upcoming = [...entries.filter((e) => e.isUpcoming)].sort((a, b) => {
+          if (a.cycle.start !== b.cycle.start) {
+            return a.cycle.start.localeCompare(b.cycle.start);
+          }
+          if (a.cycle.tier !== b.cycle.tier) {
+            return a.cycle.tier === "major" ? -1 : 1;
+          }
+          return (a.cycle.priority ?? 99) - (b.cycle.priority ?? 99);
+        });
+
+        return {
+          mode: "milestones",
+          currentOrToday,
+          upcoming,
+          all: [...currentOrToday, ...upcoming]
+        };
+      }
+
+      const sorted = sortGuidanceEntries(entries);
+      return {
+        mode: state.detailMode,
+        currentOrToday: sorted,
+        upcoming: [],
+        all: sorted
+      };
+    }
+
+    function setHoverPreview(preview) {
+      state.hoverPreview = preview;
+      renderCalendar(getRotatedHouses());
+    }
+
+    function clearHoverPreview() {
+      if (!state.hoverPreview) return;
+      state.hoverPreview = null;
+      renderCalendar(getRotatedHouses());
+    }
+
+    function populateSignSelects() {
+      const sunSel = document.getElementById("sunSignSelect");
+      const moonSel = document.getElementById("moonSignSelect");
+      const ascSel = document.getElementById("ascendantSignSelect");
+
+      const signOptionsHtml = SIGN_CYCLES_DATA.map(
+        (s) => `<option value="${s.sign}">${s.sign}</option>`
+      ).join("");
+
+      const optionalSignOptionsHtml =
+        `<option value="">— Select —</option>` + signOptionsHtml;
+
+      sunSel.innerHTML = optionalSignOptionsHtml;
+      moonSel.innerHTML = optionalSignOptionsHtml;
+      ascSel.innerHTML = signOptionsHtml;
+
+      syncControlsFromProfile();
+    }
+
+    function syncControlsFromProfile() {
+      document.getElementById("sunSignSelect").value = state.profile.sunSign || "";
+      document.getElementById("moonSignSelect").value = state.profile.moonSign || "";
+      document.getElementById("ascendantSignSelect").value = state.profile.ascendantSign || "Aries";
+      document.getElementById("saveLocalToggle").checked = Boolean(state.profile.saveLocal);
+
+      const parts = [
+        state.profile.sunSign ? `Sun in ${state.profile.sunSign}` : null,
+        state.profile.moonSign ? `Moon in ${state.profile.moonSign}` : null,
+        `Ascendant in ${state.profile.ascendantSign}`
+      ].filter(Boolean);
+
+      document.getElementById("chartSummaryLine").textContent =
+        `${parts.join(" • ")} • Today: Sun, ${formatShortMMDDYYYY(TODAY_ISO)}`;
+    }
+
+    function renderPhaseLegendButtons() {
+      document.querySelectorAll(".phase-legend-btn[data-phase]").forEach((btn) => {
+        const code = btn.getAttribute("data-phase");
+        const isActive = state.selectedPhaseCodes.includes(code);
+        btn.classList.toggle("active", isActive);
+        btn.setAttribute("aria-pressed", String(isActive));
+      });
+
+      const legendMoonBtn = document.getElementById("legendMoonBtn");
+      if (legendMoonBtn) {
+        legendMoonBtn.classList.toggle("active", state.moonOnlyFilter);
+        legendMoonBtn.setAttribute("aria-pressed", String(state.moonOnlyFilter));
+      }
+    }
+
+    function phaseBadgeHtml(code) {
+      const cls =
+        code === "S"
+          ? "phase-s"
+          : code === "E"
+          ? "phase-e"
+          : code === "P"
+          ? "phase-p"
+          : "phase-mc";
+      const title =
+        code === "S"
+          ? "Starting"
+          : code === "E"
+          ? "Ending"
+          : code === "P"
+          ? "Peak"
+          : "Mid-Cycle";
+      return `<span class="phase-pill ${cls}" title="${title}">${code}</span>`;
+    }
+
+    function renderHousesGrid(houses) {
+      const grid = document.getElementById("housesGrid");
+      const countLabel = document.getElementById("selectionCountLabel");
+      grid.innerHTML = "";
+
+      countLabel.textContent =
+        state.selectedHouseNums.length === 0
+          ? "All 12 houses"
+          : `${state.selectedHouseNums.length} selected`;
+
+      for (const h of houses) {
+        const isSelected = state.selectedHouseNums.includes(h.num);
+        const activeCycles = h.cycles.filter((c) => isDateInRange(state.selectedDate, c.start, c.end));
+        const hasActiveCycle = activeCycles.length > 0;
+        const hasMajorActive = activeCycles.some((c) => c.tier === "major");
+        const phaseCodes = getHousePhaseCodesForDate(h, state.selectedDate);
+        const matchesPhase = houseMatchesSelectedPhases(h, state.selectedDate);
+        const matchesMoon = !state.moonOnlyFilter || activeCycles.some((c) => Boolean(c.isMoonCycle));
+        const isDithered =
+          (state.selectedPhaseCodes.length > 0 && !matchesPhase) ||
+          (state.moonOnlyFilter && !matchesMoon);
+
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = `house-tile ${isSelected ? "selected" : ""} ${
+          hasActiveCycle ? "has-active-cycle" : "is-inactive-cycle"
+        } ${hasMajorActive ? "has-major-active" : hasActiveCycle ? "has-minor-active" : ""} ${
+          isDithered ? "is-dithered" : ""
+        }`;
+        btn.style.setProperty("--sign-color", h.color);
+        btn.setAttribute("aria-pressed", String(isSelected));
+
+        const indicatorHtml = hasActiveCycle
+          ? `<span class="cycle-indicator-dot ${hasMajorActive ? "major-ring" : ""}"></span>`
+          : "";
+
+        btn.innerHTML = `
+          <div class="house-tile-top">
+            <span class="house-num-group">
+              <span class="house-num">House ${h.num}</span>
+              ${indicatorHtml}
+              <span class="house-phase-badges">${phaseCodes.map(phaseBadgeHtml).join("")}</span>
+            </span>
+            <span class="sign-badge">${h.sign}</span>
+          </div>
+          <div class="house-meaning">${h.shortTheme}</div>
+        `;
+
+        btn.addEventListener("mouseover", () => {
+          setHoverPreview({ type: "house", houseNums: [h.num] });
+        });
+        btn.addEventListener("mouseout", clearHoverPreview);
+
+        btn.addEventListener("click", () => {
+          if (state.selectedHouseNums.includes(h.num)) {
+            state.selectedHouseNums = state.selectedHouseNums.filter((n) => n !== h.num);
+          } else {
+            state.selectedHouseNums = [...state.selectedHouseNums, h.num];
+          }
+          renderAll();
+        });
+
+        grid.appendChild(btn);
+      }
+    }
+
+    function renderStandaloneMoonCardHtml(dateISO) {
+      const lunar = getLunarCycleInfoForDate(dateISO);
+      const markerNote = lunar.exactLunationLabel
+        ? ` • Lunation marker: ${lunar.exactLunationLabel}`
+        : "";
+      return `
+        <section class="moon-standalone-card" aria-label="Standalone Moon Cycle Overview">
+          <div class="moon-standalone-header">
+            <span>Moon Cycle Overview (General Lunar Phase)</span>
+            <span class="moon-standalone-meta">Day ${lunar.cycleDay} of ~30 • ~${lunar.illuminationPct}% lit</span>
+          </div>
+          <div class="moon-standalone-phase-row">
+            <span class="lunar-disc lunar-disc-lg ${lunar.discClass}" aria-hidden="true"></span>
+            <span>${lunar.headline}${markerNote}</span>
+          </div>
+          <div class="moon-standalone-body">${lunar.summary}</div>
+          <div class="moon-standalone-sub"><strong>General Pacing:</strong> ${lunar.pacing}</div>
+        </section>
+      `;
+    }
+
+    function renderGuidanceCardHtml({ house, cycle, mid, isUpcoming, nextArea }) {
+      const isExpanded = state.expandedCycleIds.has(cycle.id);
+      const shadeClass = cycle.tier === "major" ? "shade-major" : "shade-minor";
+      const midClass = mid ? "is-midcycle" : "";
+      const upcomingClass = isUpcoming ? "is-upcoming" : "";
+
+      const moonPrefix = cycle.isMoonCycle ? `<span class="moon-icon" aria-hidden="true">☾</span> ` : "";
+      const statusBadge = isUpcoming
+        ? `UPCOMING (STARTS ${formatMonDay(cycle.start)}) • ${cycle.tier.toUpperCase()}`
+        : cycle.isMoonCycle
+        ? `MOON CYCLE`
+        : `${cycle.tier.toUpperCase()}`;
+
+      const natalNote = house.natalNote
+        ? `<div class="guidance-natal-hook">Chart placement in House ${house.num} (${house.sign}): ${house.natalNote}</div>`
+        : "";
+
+      const moonPhaseName = inferMoonPhaseForCycle(cycle);
+      const moonPhaseGuidanceText = moonPhaseName ? MOON_PHASE_GUIDANCE[moonPhaseName] : null;
+      const houseAdviceText = HOUSE_MOON_ADVICE[house.num] || `Focus on practical choices around ${house.shortTheme.toLowerCase()}.`;
+      const isNextAreaActive = state.nextAreaFilter && nextArea && state.nextAreaFilter.targetCycleId === nextArea.targetCycleId;
+
+      const nextAreaRangeText = nextArea
+        ? formatMonDayRange(nextArea.start, nextArea.end)
+        : "";
+
+      const nextAreaBtnHtml = nextArea
+        ? `
+          <button
+            type="button"
+            class="next-area-btn ${isNextAreaActive ? "is-active" : ""}"
+            data-next-area-cycle-id="${cycle.id}"
+            title="Highlight ${nextArea.label} (${nextAreaRangeText}) on calendar"
+          >
+            <span>Next Area: House ${nextArea.houseNum} (${nextArea.sign} • ${nextAreaRangeText}) →</span>
+          </button>
+        `
+        : "";
+
+      const moonPhaseHtml = moonPhaseGuidanceText
+        ? `
+          <div class="guidance-moon-phase-note">
+            <div class="guidance-moon-phase-top">
+              <span class="moon-icon" aria-hidden="true">☾</span>
+              <div><strong>${moonPhaseName}:</strong> ${moonPhaseGuidanceText} ${houseAdviceText}</div>
+            </div>
+            ${nextAreaBtnHtml}
+          </div>
+        `
+        : cycle.isMoonCycle
+        ? `
+          <div class="guidance-moon-phase-note">
+            <div class="guidance-moon-phase-top">
+              <span class="moon-icon" aria-hidden="true">☾</span>
+              <div><strong>House ${house.num} Guidance:</strong> ${houseAdviceText}</div>
+            </div>
+            ${nextAreaBtnHtml}
+          </div>
+        `
+        : "";
+
+      return `
+        <article
+          class="guidance-card ${shadeClass} ${midClass} ${upcomingClass} ${isExpanded ? "is-expanded" : ""}"
+          data-cycle-id="${cycle.id}"
+          data-house-num="${house.num}"
+          style="--house-color:${house.color}"
+        >
+          <div class="guidance-meta-row">
+            <span class="guidance-house-tag">${moonPrefix}House ${house.num} ${house.sign} • ${statusBadge}</span>
+            <span class="guidance-dates">${formatDateRange(cycle)}</span>
+          </div>
+          <div class="guidance-main-text">${cycle.guidance}</div>
+          ${natalNote}
+          <div class="guidance-expand-hint">
+            <span>${cycle.label}</span>
+            <span>${isExpanded ? "Hide details ▲" : "Details ▼"}</span>
+          </div>
+          ${
+            isExpanded
+              ? `
+                <div class="guidance-extra-details">
+                  <div><strong>${house.ordinal} (${house.sign}):</strong> ${house.description}</div>
+                  <div class="guidance-cycle-meaning"><strong>Cycle Meaning:</strong> ${cycle.meaning}</div>
+                  ${moonPhaseHtml}
+                  <div><strong>Transit / Aspect:</strong> ${cycle.label} (${cycle.aspectType})</div>
+                </div>
+              `
+              : ""
+          }
+        </article>
+      `;
+    }
+
+    function renderLeftInfoPanel(houses) {
+      const panel = document.getElementById("infoPanel");
+      const grouped = getOrderedGuidanceEntries(houses);
+      const isFiltered = state.selectedHouseNums.length > 0;
+      const selectedMonDay = formatMonDay(state.selectedDate);
+
+      const modeDescriptor = `Ascendant in ${state.profile.ascendantSign}`;
+
+      const filtersParts = [];
+      if (state.nextAreaFilter) filtersParts.push(`Next Area: ${state.nextAreaFilter.label}`);
+      if (state.moonOnlyFilter) filtersParts.push("☾ Moon Cycles");
+      if (state.selectedPhaseCodes.length > 0) filtersParts.push(`Phase: ${state.selectedPhaseCodes.join(", ")}`);
+      const filterSuffix = filtersParts.length > 0 ? ` • ${filtersParts.join(" • ")}` : "";
+
+      const subtitle = isFiltered
+        ? `${modeDescriptor} • ${state.selectedHouseNums.map((n) => `House ${n}`).join(", ")}${filterSuffix}`
+        : `${modeDescriptor}${filterSuffix} • Hover to preview • Click for details`;
+
+      const nextAreaBannerHtml = state.nextAreaFilter
+        ? `
+          <div class="next-area-filter-banner">
+            <span>
+              <strong>Next Area Highlighted:</strong> ${state.nextAreaFilter.label} (House ${state.nextAreaFilter.houseNum}, ${
+                formatMonDayRange(state.nextAreaFilter.start, state.nextAreaFilter.end)
+              })
+            </span>
+            <button type="button" class="btn btn-sm" id="btnClearNextArea">Show All</button>
+          </div>
+        `
+        : "";
+
+      const standaloneMoonHtml = state.moonOnlyFilter
+        ? renderStandaloneMoonCardHtml(state.selectedDate)
+        : "";
+
+      let feedHtml = "";
+
+      if (grouped.all.length === 0) {
+        feedHtml = `<div style="font-size:0.74rem; color:var(--text-muted); padding:10px 4px;">No house-specific Moon cycles match this filter view on ${selectedMonDay}.</div>`;
+      } else if (grouped.mode === "milestones" && !state.nextAreaFilter) {
+        feedHtml += `
+          <div class="guidance-section-divider">
+            <div class="guidance-section-title">
+              <span>Active / Starting or Ending on ${selectedMonDay}</span>
+              <span>${grouped.currentOrToday.length}</span>
+            </div>
+            <div class="guidance-section-desc">Cycles starting, ending, or hitting a single-day peak on ${selectedMonDay}.</div>
+          </div>
+        `;
+
+        if (grouped.currentOrToday.length > 0) {
+          feedHtml += grouped.currentOrToday.map((item) => renderGuidanceCardHtml(item)).join("");
+        } else {
+          feedHtml += `<div style="font-size:0.71rem; color:var(--text-muted); padding:4px 4px;">No cycle starts, ends, or peaks on ${selectedMonDay}.</div>`;
+        }
+
+        if (grouped.upcoming.length > 0) {
+          feedHtml += `
+            <div class="guidance-section-divider upcoming">
+              <div class="guidance-section-title">
+                <span>Upcoming After ${selectedMonDay} (Not Yet Started)</span>
+                <span>${grouped.upcoming.length}</span>
+              </div>
+              <div class="guidance-section-desc">Future cycles sorted by start date—not active yet on ${selectedMonDay}.</div>
+            </div>
+          `;
+          feedHtml += grouped.upcoming.map((item) => renderGuidanceCardHtml(item)).join("");
+        }
+      } else {
+        feedHtml = grouped.all.map((item) => renderGuidanceCardHtml(item)).join("");
+      }
+
+      panel.innerHTML = `
+        <div class="info-header">
+          <div>
+            <div class="info-title">Guidance &amp; Dates</div>
+            <div class="info-subtitle">${subtitle}</div>
+          </div>
+          <span class="selected-date-pill">${selectedMonDay}</span>
+        </div>
+
+        <div class="cycle-filter-bar" role="group" aria-label="Cycle View Filters">
+          <button class="btn btn-sm ${state.detailMode === "today" && !state.nextAreaFilter ? "active" : ""}" id="modeTodayFocus" type="button">Today's Focus</button>
+          <button class="btn btn-sm ${state.detailMode === "milestones" && !state.nextAreaFilter ? "active" : ""}" id="modeMilestones" type="button">Start / End / Peak</button>
+          <button class="btn btn-sm ${state.detailMode === "midcycle" && !state.nextAreaFilter ? "active" : ""}" id="modeMidCycle" type="button">Mid-Cycle</button>
+          <button class="btn btn-sm moon-btn moon-filter-btn ${state.moonOnlyFilter ? "active" : ""}" id="filterMoonBtn" type="button" title="Toggle Moon cycles filter" aria-pressed="${String(state.moonOnlyFilter)}">
+            <span class="moon-icon" aria-hidden="true">☾</span>
+          </button>
+        </div>
+
+        ${nextAreaBannerHtml}
+        ${standaloneMoonHtml}
+
+        <div class="guidance-feed" id="guidanceFeed">${feedHtml}</div>
+      `;
+
+      document.getElementById("modeTodayFocus").addEventListener("click", () => {
+        state.nextAreaFilter = null;
+        state.detailMode = "today";
+        renderAll();
+      });
+      document.getElementById("modeMilestones").addEventListener("click", () => {
+        state.nextAreaFilter = null;
+        state.detailMode = "milestones";
+        renderAll();
+      });
+      document.getElementById("modeMidCycle").addEventListener("click", () => {
+        state.nextAreaFilter = null;
+        state.detailMode = "midcycle";
+        renderAll();
+      });
+      document.getElementById("filterMoonBtn").addEventListener("click", toggleMoonFilter);
+
+      const clearNextAreaBtn = document.getElementById("btnClearNextArea");
+      if (clearNextAreaBtn) {
+        clearNextAreaBtn.addEventListener("click", () => {
+          state.nextAreaFilter = null;
+          renderAll();
+        });
+      }
+
+      const entriesMap = new Map(grouped.all.map((e) => [e.cycle.id, e]));
+
+      panel.querySelectorAll(".next-area-btn").forEach((btn) => {
+        btn.addEventListener("click", (e) => {
+          e.stopPropagation();
+          const sourceId = btn.getAttribute("data-next-area-cycle-id");
+          const entry = entriesMap.get(sourceId);
+          if (entry && entry.nextArea) {
+            activateNextAreaFilter(entry.nextArea);
+          }
+        });
+      });
+
+      panel.querySelectorAll(".guidance-card").forEach((card) => {
+        const cid = card.getAttribute("data-cycle-id");
+        const entry = entriesMap.get(cid);
+        if (!entry) return;
+
+        card.addEventListener("mouseover", (e) => {
+          e.stopPropagation();
+          setHoverPreview({
+            type: "cycle",
+            houseNum: entry.house.num,
+            cycle: entry.cycle
+          });
+        });
+
+        card.addEventListener("mouseout", (e) => {
+          if (!card.contains(e.relatedTarget)) {
+            clearHoverPreview();
+          }
+        });
+
+        card.addEventListener("click", () => {
+          if (state.expandedCycleIds.has(cid)) {
+            state.expandedCycleIds.delete(cid);
+          } else {
+            state.expandedCycleIds.add(cid);
+          }
+          renderLeftInfoPanel(houses);
+        });
+      });
+    }
+
+    function buildDayHighlightStyle(activeColors) {
+      if (activeColors.length === 0) return "";
+      if (activeColors.length === 1) {
+        const c = activeColors[0];
+        return `background: linear-gradient(135deg, color-mix(in srgb, ${c} 44%, #0f172a), color-mix(in srgb, ${c} 28%, #090d16)); border-color: color-mix(in srgb, ${c} 75%, transparent);`;
+      }
+      const step = 100 / activeColors.length;
+      const stops = activeColors
+        .map((c, idx) => {
+          const from = (idx * step).toFixed(1);
+          const to = ((idx + 1) * step).toFixed(1);
+          return `color-mix(in srgb, ${c} 40%, #0e1525) ${from}%, color-mix(in srgb, ${c} 40%, #0e1525) ${to}%`;
+        })
+        .join(", ");
+      return `background: linear-gradient(135deg, ${stops}); border-color: rgba(255, 255, 255, 0.28);`;
+    }
+
+    function renderCalendar(houses) {
+      const monthLabel = document.getElementById("monthLabel");
+      const daysGrid = document.getElementById("daysGrid");
+      const selectedDateSummary = document.getElementById("selectedDateSummary");
+      const previewBanner = document.getElementById("previewBanner");
+
+      const monthDate = new Date(Date.UTC(state.viewYear, state.viewMonth, 1));
+      monthLabel.textContent = monthDate.toLocaleDateString("en-US", {
+        month: "long",
+        year: "numeric",
+        timeZone: "UTC"
+      });
+
+      selectedDateSummary.textContent = formatReadableDate(state.selectedDate);
+
+      const hover = state.hoverPreview;
+      if (hover && hover.type === "cycle") {
+        previewBanner.textContent = `Previewing: ${hover.cycle.label} (${formatDateRange(hover.cycle)})`;
+        previewBanner.classList.add("active");
+      } else if (hover && hover.type === "house") {
+        const h = houses.find((x) => x.num === hover.houseNums[0]);
+        previewBanner.textContent = `Previewing: House ${h.num} (${h.sign})`;
+        previewBanner.classList.add("active");
+      } else {
+        previewBanner.textContent = "";
+        previewBanner.classList.remove("active");
+      }
+
+      const firstWeekday = monthDate.getUTCDay();
+      const daysInMonth = new Date(Date.UTC(state.viewYear, state.viewMonth + 1, 0)).getUTCDate();
+
+      daysGrid.innerHTML = "";
+
+      for (let i = 0; i < firstWeekday; i++) {
+        const empty = document.createElement("div");
+        empty.className = "day-cell empty";
+        daysGrid.appendChild(empty);
+      }
+
+      const activeHouseFilter = hover && hover.type === "house"
+        ? hover.houseNums
+        : state.selectedHouseNums;
+      const hasHouseSelection = activeHouseFilter.length > 0;
+
+      for (let d = 1; d <= daysInMonth; d++) {
+        const iso = toISO(state.viewYear, state.viewMonth, d);
+        const isToday = iso === TODAY_ISO;
+        const isSelected = iso === state.selectedDate;
+        const isNextAreaDay =
+          Boolean(state.nextAreaFilter) &&
+          isDateInRange(iso, state.nextAreaFilter.start, state.nextAreaFilter.end);
+
+        const lunar = getLunarCycleInfoForDate(iso);
+
+        const dayMoonCycles = [];
+        for (const h of houses) {
+          for (const c of h.cycles) {
+            if (c.isMoonCycle && isDateInRange(iso, c.start, c.end)) {
+              dayMoonCycles.push({ house: h, cycle: c });
+            }
+          }
+        }
+        const hasMoonOnDay = dayMoonCycles.length > 0;
+
+        const cell = document.createElement("button");
+        cell.type = "button";
+        cell.className = `day-cell ${isToday ? "is-today" : ""} ${isSelected ? "is-selected" : ""} ${
+          hasMoonOnDay ? "has-moon-cycle" : ""
+        } ${isNextAreaDay ? "is-next-area-day" : ""}`;
+
+        const swatchesByKey = new Map();
+        const activeHouseColors = [];
+
+        if (hover && hover.type === "cycle") {
+          const h = houses.find((x) => x.num === hover.houseNum);
+          if (h && isDateInRange(iso, hover.cycle.start, hover.cycle.end)) {
+            const swatchColor = hover.cycle.color || h.color;
+            swatchesByKey.set(`${h.num}-${swatchColor}-${hover.cycle.isMoonCycle ? "m" : "n"}`, {
+              houseNum: h.num,
+              color: swatchColor,
+              isMoon: Boolean(hover.cycle.isMoonCycle),
+              title: `House ${h.num} (${h.sign}): ${hover.cycle.label}`
+            });
+            activeHouseColors.push(h.color);
+          }
+        } else if (state.nextAreaFilter) {
+          if (isNextAreaDay) {
+            const targetHouse = houses.find((x) => x.num === state.nextAreaFilter.houseNum);
+            if (targetHouse) {
+              swatchesByKey.set(`${targetHouse.num}-${targetHouse.color}-next`, {
+                houseNum: targetHouse.num,
+                color: targetHouse.color,
+                isMoon: true,
+                title: `Next Area • House ${targetHouse.num} (${targetHouse.sign}): ${state.nextAreaFilter.label}`
+              });
+              activeHouseColors.push(targetHouse.color);
+            }
+          }
+        } else {
+          for (const h of houses) {
+            if (hasHouseSelection && !activeHouseFilter.includes(h.num)) {
+              continue;
+            }
+            if (!hasHouseSelection && !state.showAllSigns) {
+              continue;
+            }
+            if (!hover && state.filterActiveOnDate) {
+              const hasActiveOnSelected = h.cycles.some((c) => isDateInRange(state.selectedDate, c.start, c.end));
+              if (!hasActiveOnSelected) continue;
+            }
+
+            let matchingCyclesOnDay = state.detailMode === "milestones"
+              ? h.cycles.filter((c) => isMilestoneOnDate(c, iso))
+              : getFilteredCyclesForHouse(h, iso);
+
+            if (state.moonOnlyFilter) {
+              matchingCyclesOnDay = matchingCyclesOnDay.filter((c) => Boolean(c.isMoonCycle));
+            }
+
+            if (state.selectedPhaseCodes.length > 0) {
+              matchingCyclesOnDay = matchingCyclesOnDay.filter((c) =>
+                cycleMatchesSelectedPhases(c, iso)
+              );
+            }
+
+            if (matchingCyclesOnDay.length > 0) {
+              const chosenCycle =
+                state.moonOnlyFilter
+                  ? matchingCyclesOnDay.find((c) => c.isMoonCycle) || matchingCyclesOnDay[0]
+                  : matchingCyclesOnDay[0];
+              const swatchColor = hasHouseSelection ? h.color : (chosenCycle.color || h.color);
+              const isMoonSwatch = Boolean(chosenCycle.isMoonCycle);
+              const key = `${h.num}-${swatchColor}-${isMoonSwatch ? "m" : "n"}`;
+              if (!swatchesByKey.has(key)) {
+                swatchesByKey.set(key, {
+                  houseNum: h.num,
+                  color: swatchColor,
+                  isMoon: isMoonSwatch,
+                  title: hasHouseSelection
+                    ? `House ${h.num} (${h.sign})`
+                    : `${isMoonSwatch ? "☾ " : ""}House ${h.num} (${h.sign}): ${chosenCycle.label}`
+                });
+              }
+              if (state.moonOnlyFilter || hasHouseSelection) {
+                activeHouseColors.push(h.color);
+              }
+            }
+          }
+        }
+
+        const swatches = Array.from(swatchesByKey.values());
+
+        if (activeHouseColors.length > 0) {
+          cell.setAttribute("style", buildDayHighlightStyle(activeHouseColors));
+        }
+
+        const moonTooltipParts = [`${lunar.phaseName} (~${lunar.illuminationPct}% lit)`];
+        if (hasMoonOnDay) {
+          moonTooltipParts.push(dayMoonCycles.map((m) => `House ${m.house.num}: ${m.cycle.label}`).join(" • "));
+        }
+        const moonTitle = moonTooltipParts.join(" — ");
+
+        cell.innerHTML = `
+          <div class="day-top">
+            <span class="day-num-wrap">
+              <span class="day-num">${d}</span>
+              <span class="lunar-disc ${lunar.discClass}" title="${moonTitle}" aria-label="${lunar.phaseName}"></span>
+            </span>
+            <span style="display:inline-flex; gap:3px; align-items:center;">
+              ${isToday ? `<span class="today-tag">TODAY</span>` : ""}
+            </span>
+          </div>
+          <div class="day-swatches">
+            ${swatches
+              .map(
+                (s) =>
+                  `<span class="color-swatch ${s.isMoon ? "is-moon-swatch" : ""}" style="--swatch-color:${s.color}" title="${s.title}">${s.houseNum}</span>`
+              )
+              .join("")}
+          </div>
+        `;
+
+        cell.addEventListener("click", () => {
+          state.selectedDate = iso;
+          renderAll();
+        });
+
+        daysGrid.appendChild(cell);
+      }
+    }
+
+    function renderToolbarStates() {
+      const btnAllSigns = document.getElementById("btnAllSigns");
+      const btnActiveToday = document.getElementById("btnActiveToday");
+
+      btnAllSigns.classList.toggle(
+        "active",
+        state.showAllSigns &&
+          state.selectedHouseNums.length === 0 &&
+          state.selectedPhaseCodes.length === 0 &&
+          !state.moonOnlyFilter &&
+          !state.nextAreaFilter
+      );
+      btnActiveToday.classList.toggle("active", state.filterActiveOnDate);
+    }
+
+    function renderAll() {
+      const houses = getRotatedHouses();
+      syncControlsFromProfile();
+      renderPhaseLegendButtons();
+      renderToolbarStates();
+      renderHousesGrid(houses);
+      renderLeftInfoPanel(houses);
+      renderCalendar(houses);
+    }
+
+    function toggleMoonFilter() {
+      state.nextAreaFilter = null;
+      state.moonOnlyFilter = !state.moonOnlyFilter;
+      renderAll();
+    }
+
+    document.getElementById("legendMoonBtn").addEventListener("click", toggleMoonFilter);
+
+    document.querySelectorAll(".phase-legend-btn[data-phase]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        state.nextAreaFilter = null;
+        const code = btn.getAttribute("data-phase");
+        if (state.selectedPhaseCodes.includes(code)) {
+          state.selectedPhaseCodes = state.selectedPhaseCodes.filter((c) => c !== code);
+        } else {
+          state.selectedPhaseCodes = [...state.selectedPhaseCodes, code];
+        }
+
+        const hasSEP = state.selectedPhaseCodes.some((c) => c === "S" || c === "E" || c === "P");
+        const hasMC = state.selectedPhaseCodes.includes("MC");
+
+        if (hasSEP) {
+          state.detailMode = "milestones";
+        } else if (hasMC && !hasSEP) {
+          state.detailMode = "midcycle";
+        } else if (state.selectedPhaseCodes.length === 0) {
+          state.detailMode = "today";
+        }
+
+        renderAll();
+      });
+    });
+
+    function handleProfileChange() {
+      state.profile = {
+        sunSign: document.getElementById("sunSignSelect").value,
+        moonSign: document.getElementById("moonSignSelect").value,
+        ascendantSign: document.getElementById("ascendantSignSelect").value,
+        saveLocal: document.getElementById("saveLocalToggle").checked
+      };
+      persistProfile(state.profile);
+      renderAll();
+    }
+
+    document.getElementById("sunSignSelect").addEventListener("change", handleProfileChange);
+    document.getElementById("moonSignSelect").addEventListener("change", handleProfileChange);
+    document.getElementById("ascendantSignSelect").addEventListener("change", handleProfileChange);
+    document.getElementById("saveLocalToggle").addEventListener("change", handleProfileChange);
+
+    document.getElementById("btnResetSigns").addEventListener("click", () => {
+      state.profile = { ...DEFAULT_PROFILE };
+      persistProfile(state.profile);
+      renderAll();
+    });
+
+    document.getElementById("prevMonth").addEventListener("click", () => {
+      state.viewMonth -= 1;
+      if (state.viewMonth < 0) {
+        state.viewMonth = 11;
+        state.viewYear -= 1;
+      }
+      renderCalendar(getRotatedHouses());
+    });
+
+    document.getElementById("nextMonth").addEventListener("click", () => {
+      state.viewMonth += 1;
+      if (state.viewMonth > 11) {
+        state.viewMonth = 0;
+        state.viewYear += 1;
+      }
+      renderCalendar(getRotatedHouses());
+    });
+
+    document.getElementById("btnTodayJump").addEventListener("click", () => {
+      state.nextAreaFilter = null;
+      state.selectedDate = TODAY_ISO;
+      state.viewYear = 2026;
+      state.viewMonth = 10;
+      renderAll();
+    });
+
+    document.getElementById("btnAllSigns").addEventListener("click", () => {
+      state.selectedHouseNums = [];
+      state.selectedPhaseCodes = [];
+      state.moonOnlyFilter = false;
+      state.nextAreaFilter = null;
+      state.showAllSigns = true;
+      renderAll();
+    });
+
+    document.getElementById("btnActiveToday").addEventListener("click", () => {
+      state.filterActiveOnDate = !state.filterActiveOnDate;
+      renderAll();
+    });
+
+    document.getElementById("btnClearSelection").addEventListener("click", () => {
+      state.selectedHouseNums = [];
+      state.selectedPhaseCodes = [];
+      state.moonOnlyFilter = false;
+      state.nextAreaFilter = null;
+      renderAll();
+    });
+
+    document.getElementById("btnCopyCode").addEventListener("click", async () => {
+      const fullHtml = "<!DOCTYPE html>\n" + document.documentElement.outerHTML;
+      try {
+        await navigator.clipboard.writeText(fullHtml);
+        const toast = document.getElementById("toast");
+        toast.classList.add("show");
+        setTimeout(() => toast.classList.remove("show"), 1800);
+      } catch (err) {
+        console.error("Clipboard copy failed:", err);
+      }
+    });
+
+    populateSignSelects();
+    persistProfile(state.profile);
+    renderAll();
+  </script>
+</body>
+</html>
