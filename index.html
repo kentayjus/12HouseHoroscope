@@ -194,6 +194,239 @@
       background: linear-gradient(90deg, #f8fafc 36%, #090d16 42%);
     }
 
+    /* Daily Synthesis & Animated Things to Take Notice Of Card */
+    @keyframes noticePopIn {
+      0% {
+        opacity: 0;
+        transform: translateY(5px) scale(0.99);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    @keyframes noticeBadgeShimmer {
+      0%, 100% {
+        box-shadow: 0 0 0 0 rgba(251, 191, 36, 0.25);
+      }
+      50% {
+        box-shadow: 0 0 10px 1px rgba(251, 191, 36, 0.35);
+      }
+    }
+
+    @keyframes moonNoticeShimmer {
+      0%, 100% {
+        box-shadow: 0 0 0 0 rgba(192, 132, 252, 0.25);
+      }
+      50% {
+        box-shadow: 0 0 10px 1px rgba(192, 132, 252, 0.38);
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .daily-notice-item,
+      .daily-notice-item.is-moon-notice,
+      .house-tile,
+      .cycle-indicator-dot,
+      .guidance-card.is-midcycle {
+        animation: none !important;
+        transition: none !important;
+      }
+    }
+
+    .daily-synthesis-card {
+      background: linear-gradient(
+        145deg,
+        rgba(30, 41, 69, 0.88),
+        rgba(13, 20, 36, 0.95)
+      );
+      border: 1px solid rgba(251, 191, 36, 0.34);
+      border-left: 4px solid var(--gold);
+      border-radius: var(--radius-md);
+      padding: 9px 11px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .daily-synthesis-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .daily-synthesis-heading {
+      font-size: 0.69rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--gold);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .daily-synthesis-counts {
+      font-size: 0.64rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .daily-synthesis-block {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .daily-synthesis-label {
+      font-size: 0.65rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #e2e8f0;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .daily-theme-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .daily-theme-item {
+      font-size: 0.72rem;
+      color: #f8fafc;
+      background: rgba(9, 14, 26, 0.55);
+      border: 1px solid rgba(148, 163, 184, 0.14);
+      border-radius: var(--radius-sm);
+      padding: 5px 8px;
+      line-height: 1.36;
+    }
+
+    .daily-theme-item strong {
+      color: #fde68a;
+    }
+
+    .daily-notice-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .daily-notice-item {
+      font-size: 0.7rem;
+      color: #fef9c3;
+      background: linear-gradient(
+        90deg,
+        rgba(251, 191, 36, 0.16),
+        rgba(15, 23, 42, 0.72) 75%
+      );
+      border: 1px solid rgba(251, 191, 36, 0.42);
+      border-left: 3px solid var(--gold);
+      border-radius: var(--radius-sm);
+      padding: 5px 8px;
+      line-height: 1.35;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 8px;
+      animation: noticePopIn 320ms cubic-bezier(0.22, 1, 0.36, 1) both,
+        noticeBadgeShimmer 3.4s ease-in-out infinite;
+    }
+
+    .daily-notice-item.is-clickable {
+      cursor: pointer;
+      transition: transform var(--transition), filter var(--transition), border-color var(--transition);
+    }
+
+    .daily-notice-item.is-clickable:hover {
+      transform: translateX(2px);
+      filter: brightness(1.12);
+      border-color: #fde047;
+    }
+
+    .daily-notice-item.is-active-filter {
+      outline: 1.5px solid #ffffff;
+      filter: brightness(1.15);
+    }
+
+    .daily-notice-item:nth-child(2) {
+      animation-delay: 60ms, 500ms;
+    }
+
+    .daily-notice-item:nth-child(3) {
+      animation-delay: 120ms, 1000ms;
+    }
+
+    .daily-notice-item:nth-child(4) {
+      animation-delay: 180ms, 1500ms;
+    }
+
+    .daily-notice-item.is-moon-notice {
+      color: #f3e8ff;
+      background: linear-gradient(
+        90deg,
+        rgba(192, 132, 252, 0.2),
+        rgba(24, 20, 54, 0.78) 75%
+      );
+      border-color: rgba(192, 132, 252, 0.52);
+      border-left-color: #d8b4fe;
+      animation: noticePopIn 320ms cubic-bezier(0.22, 1, 0.36, 1) both,
+        moonNoticeShimmer 3.6s ease-in-out infinite;
+    }
+
+    .daily-notice-left {
+      display: inline-flex;
+      align-items: flex-start;
+      gap: 6px;
+      min-width: 0;
+    }
+
+    .daily-notice-spark {
+      flex: 0 0 auto;
+      font-size: 0.72rem;
+      line-height: 1.25;
+      color: var(--gold);
+      font-weight: 800;
+    }
+
+    .daily-notice-item.is-moon-notice .daily-notice-spark {
+      color: #e9d5ff;
+    }
+
+    .daily-notice-item strong {
+      color: #ffffff;
+    }
+
+    .daily-notice-cue {
+      flex: 0 0 auto;
+      font-size: 0.6rem;
+      font-weight: 700;
+      color: #fde68a;
+      opacity: 0.85;
+      white-space: nowrap;
+      align-self: center;
+    }
+
+    .daily-notice-item.is-moon-notice .daily-notice-cue {
+      color: #e9d5ff;
+    }
+
+    .daily-synthesis-footer {
+      font-size: 0.63rem;
+      color: var(--text-muted);
+      padding-top: 3px;
+      border-top: 1px dashed rgba(148, 163, 184, 0.18);
+    }
+
     /* Standalone Moon Cycle Overview Card (not tied to a house) */
     .moon-standalone-card {
       background: linear-gradient(
@@ -370,6 +603,7 @@
       max-height: calc(100vh - 150px);
       min-height: 520px;
       overflow-y: auto;
+      scroll-margin-top: 16px;
     }
 
     .info-panel::-webkit-scrollbar {
@@ -1588,7 +1822,6 @@
       const rawAge = (curDay - refDay) % SYNODIC_MONTH_DAYS;
       const cycleAge = rawAge < 0 ? rawAge + SYNODIC_MONTH_DAYS : rawAge;
       const cycleFraction = cycleAge / SYNODIC_MONTH_DAYS;
-      // Illumination approximation (0 at New Moon, 1 at Full Moon)
       const illuminationPct = Math.round(((1 - Math.cos(cycleFraction * Math.PI * 2)) / 2) * 100);
 
       let phaseName = "Waxing Crescent";
@@ -2295,6 +2528,260 @@
       };
     }
 
+    function formatUniqueHouseLabels(entries, maxItems = 2) {
+      const seen = new Set();
+      const labels = [];
+      for (const e of entries) {
+        const key = `${e.house.num}-${e.house.shortTheme.toLowerCase()}`;
+        if (seen.has(key)) continue;
+        seen.add(key);
+        labels.push(`House ${e.house.num} (${e.house.shortTheme.toLowerCase()})`);
+        if (labels.length >= maxItems) break;
+      }
+      return labels.join(" & ");
+    }
+
+    function formatUniqueHouseNums(entries, maxItems = 2) {
+      const seen = new Set();
+      const nums = [];
+      for (const e of entries) {
+        if (seen.has(e.house.num)) continue;
+        seen.add(e.house.num);
+        nums.push(`House ${e.house.num}`);
+        if (nums.length >= maxItems) break;
+      }
+      return nums.join(" & ");
+    }
+
+    function collectUniqueHouseNums(entries, limit = 3) {
+      const nums = [];
+      for (const e of entries) {
+        if (!nums.includes(e.house.num)) {
+          nums.push(e.house.num);
+        }
+        if (nums.length >= limit) break;
+      }
+      return nums;
+    }
+
+    function scrollDetailsSlightlyIntoView() {
+      const panel = document.getElementById("infoPanel");
+      if (!panel) return;
+      const rect = panel.getBoundingClientRect();
+      if (rect.top < 12) {
+        window.scrollBy({
+          top: Math.max(-180, rect.top - 16),
+          behavior: "smooth"
+        });
+      } else if (rect.top > 120) {
+        window.scrollBy({
+          top: Math.min(240, rect.top - 24),
+          behavior: "smooth"
+        });
+      }
+      panel.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function handleNoticeClick(targetHouseNums) {
+      if (!Array.isArray(targetHouseNums) || targetHouseNums.length === 0) return;
+      const sortedTarget = [...targetHouseNums].sort((a, b) => a - b);
+      const sortedCurrent = [...state.selectedHouseNums].sort((a, b) => a - b);
+      const alreadyMatched =
+        sortedTarget.length === sortedCurrent.length &&
+        sortedTarget.every((n, i) => n === sortedCurrent[i]);
+
+      state.nextAreaFilter = null;
+      state.selectedHouseNums = alreadyMatched ? [] : sortedTarget;
+      renderAll();
+      scrollDetailsSlightlyIntoView();
+    }
+
+    /**
+     * Synthesizes a top-level daily summary & guidance-focused "Things to Take Notice Of" block
+     * without raw astrological/house labels in the notice copy.
+     */
+    function buildDailySynthesis(houses, dateISO) {
+      const scopedHouses =
+        state.selectedHouseNums.length > 0
+          ? houses.filter((h) => state.selectedHouseNums.includes(h.num))
+          : houses;
+
+      const activeEntries = [];
+      for (const h of scopedHouses) {
+        for (const c of h.cycles) {
+          if (!isDateInRange(dateISO, c.start, c.end)) continue;
+          if (state.moonOnlyFilter && !c.isMoonCycle) continue;
+          if (state.selectedPhaseCodes.length > 0 && !cycleMatchesSelectedPhases(c, dateISO)) continue;
+          activeEntries.push({
+            house: h,
+            cycle: c,
+            phaseCodes: getCyclePhaseCodesOnDate(c, dateISO)
+          });
+        }
+      }
+
+      const majorEntries = sortGuidanceEntries(activeEntries.filter((e) => e.cycle.tier === "major"));
+      const minorNonMoon = sortGuidanceEntries(
+        activeEntries.filter((e) => e.cycle.tier !== "major" && !e.cycle.isMoonCycle)
+      );
+      const moonEntries = sortGuidanceEntries(
+        activeEntries.filter((e) => Boolean(e.cycle.isMoonCycle))
+      );
+      const lunar = getLunarCycleInfoForDate(dateISO);
+
+      const themes = [];
+
+      if (majorEntries.length > 0) {
+        const majorLabel = formatUniqueHouseLabels(majorEntries, 2);
+        const leadMajor = majorEntries[0];
+        themes.push(
+          `<strong>${majorLabel}:</strong> ${leadMajor.cycle.guidance}`
+        );
+      }
+
+      if (minorNonMoon.length > 0) {
+        const minorLabel = formatUniqueHouseLabels(minorNonMoon, 2);
+        const leadMinor = minorNonMoon[0];
+        themes.push(
+          `<strong>${minorLabel}:</strong> ${leadMinor.cycle.guidance}`
+        );
+      }
+
+      if (moonEntries.length > 0) {
+        const leadMoon = moonEntries[0];
+        themes.push(
+          `<strong>${lunar.phaseName} (${formatUniqueHouseNums(moonEntries, 1)}):</strong> ${leadMoon.cycle.guidance}`
+        );
+      } else if (themes.length === 0) {
+        themes.push(
+          `<strong>${lunar.phaseName}:</strong> ${lunar.pacing}`
+        );
+      }
+
+      const notices = [];
+
+      // Milestones happening directly on this date (guidance-focused, no raw labels)
+      const milestoneEntries = activeEntries.filter((e) =>
+        e.phaseCodes.some((p) => p === "S" || p === "E" || p === "P")
+      );
+      if (milestoneEntries.length > 0) {
+        const hasEnding = milestoneEntries.some((e) => e.phaseCodes.includes("E"));
+        const hasStarting = milestoneEntries.some((e) => e.phaseCodes.includes("S"));
+        const milestoneGuidance = hasEnding && hasStarting
+          ? "Wrap up loose ends you are finishing today and set clear intentions for what is just beginning."
+          : hasEnding
+          ? "Wrap up loose ends and tie off details on windows closing today."
+          : "Take a clean first step on what is opening up today without overcomplicating it.";
+        notices.push({
+          isMoon: false,
+          spark: "⚡",
+          houseNums: collectUniqueHouseNums(milestoneEntries, 3),
+          text: `<strong>Turning Point Today:</strong> ${milestoneGuidance}`
+        });
+      }
+
+      // Pacing & review awareness (guidance-focused, no raw cycle/house verbiage)
+      const rxEntries = majorEntries.filter((e) =>
+        /retrograde|shift forward|station/i.test(e.cycle.label) ||
+        /retrograde|station/i.test(e.cycle.aspectType)
+      );
+      if (rxEntries.length > 0) {
+        notices.push({
+          isMoon: false,
+          spark: "✦",
+          houseNums: collectUniqueHouseNums(rxEntries, 3),
+          text: `<strong>Pace Deliberately:</strong> Double-check details, test what holds up in practice, and avoid rushing big commitments.`
+        });
+      }
+
+      // Lunar phase & illumination cue (guidance-focused)
+      notices.push({
+        isMoon: true,
+        spark: "☾",
+        houseNums: collectUniqueHouseNums(moonEntries, 2),
+        text: `<strong>${lunar.phaseName} (~${lunar.illuminationPct}% lit):</strong> ${lunar.pacing}`
+      });
+
+      // Personal Sun / Moon placement matches on active houses (guidance-focused)
+      const natalActive = activeEntries.filter((e) => Boolean(e.house.natalNote));
+      if (natalActive.length > 0) {
+        notices.push({
+          isMoon: false,
+          spark: "★",
+          houseNums: collectUniqueHouseNums(natalActive, 3),
+          text: `<strong>Personal Resonance:</strong> Today's themes touch closer to home—lean into your natural instincts and pace.`
+        });
+      }
+
+      return {
+        dateLabel: formatMonDay(dateISO),
+        majorCount: majorEntries.length,
+        minorCount: minorNonMoon.length,
+        moonCount: moonEntries.length,
+        themes: themes.slice(0, 3),
+        notices: notices.slice(0, 4)
+      };
+    }
+
+    function renderDailySynthesisCardHtml(houses, dateISO) {
+      const syn = buildDailySynthesis(houses, dateISO);
+      const countSummary = `${syn.majorCount} major • ${syn.minorCount} minor • ${syn.moonCount} moon`;
+      const sortedCurrentSelected = [...state.selectedHouseNums].sort((a, b) => a - b);
+
+      return `
+        <section class="daily-synthesis-card" aria-label="Daily Overview and Things to Take Notice Of">
+          <div class="daily-synthesis-header">
+            <span class="daily-synthesis-heading">Daily Overview • ${syn.dateLabel}</span>
+            <span class="daily-synthesis-counts">${countSummary}</span>
+          </div>
+
+          <div class="daily-synthesis-block">
+            <div class="daily-synthesis-label">Main Guidance Today</div>
+            <ul class="daily-theme-list">
+              ${syn.themes.map((t) => `<li class="daily-theme-item">${t}</li>`).join("")}
+            </ul>
+          </div>
+
+          <div class="daily-synthesis-block">
+            <div class="daily-synthesis-label"><span>✦</span> Things to Take Notice Of</div>
+            <ul class="daily-notice-list">
+              ${syn.notices
+                .map((n, idx) => {
+                  const targetNums = Array.isArray(n.houseNums) ? n.houseNums : [];
+                  const sortedTarget = [...targetNums].sort((a, b) => a - b);
+                  const isActiveFilter =
+                    sortedTarget.length > 0 &&
+                    sortedTarget.length === sortedCurrentSelected.length &&
+                    sortedTarget.every((num, i) => num === sortedCurrentSelected[i]);
+                  const clickable = targetNums.length > 0;
+                  return `
+                    <li
+                      class="daily-notice-item ${n.isMoon ? "is-moon-notice" : ""} ${
+                        clickable ? "is-clickable" : ""
+                      } ${isActiveFilter ? "is-active-filter" : ""}"
+                      data-notice-index="${idx}"
+                      data-target-houses="${targetNums.join(",")}"
+                      ${clickable ? 'role="button" tabindex="0" title="Click to filter calendar & view details"' : ""}
+                    >
+                      <span class="daily-notice-left">
+                        <span class="daily-notice-spark" aria-hidden="true">${n.spark}</span>
+                        <span>${n.text}</span>
+                      </span>
+                      ${clickable ? `<span class="daily-notice-cue">${isActiveFilter ? "Filtered ✓" : "Focus →"}</span>` : ""}
+                    </li>
+                  `;
+                })
+                .join("")}
+            </ul>
+          </div>
+
+          <div class="daily-synthesis-footer">
+            Tap any notice to filter the calendar, or pick a house card below for details.
+          </div>
+        </section>
+      `;
+    }
+
     function setHoverPreview(preview) {
       state.hoverPreview = preview;
       renderCalendar(getRotatedHouses());
@@ -2573,7 +3060,7 @@
 
       const subtitle = isFiltered
         ? `${modeDescriptor} • ${state.selectedHouseNums.map((n) => `House ${n}`).join(", ")}${filterSuffix}`
-        : `${modeDescriptor}${filterSuffix} • Hover to preview • Click for details`;
+        : `${modeDescriptor}${filterSuffix} • Daily overview up top • Houses below`;
 
       const nextAreaBannerHtml = state.nextAreaFilter
         ? `
@@ -2588,6 +3075,10 @@
         `
         : "";
 
+      const dailySynthesisHtml = !state.nextAreaFilter
+        ? renderDailySynthesisCardHtml(houses, state.selectedDate)
+        : "";
+
       const standaloneMoonHtml = state.moonOnlyFilter
         ? renderStandaloneMoonCardHtml(state.selectedDate)
         : "";
@@ -2595,7 +3086,7 @@
       let feedHtml = "";
 
       if (grouped.all.length === 0) {
-        feedHtml = `<div style="font-size:0.74rem; color:var(--text-muted); padding:10px 4px;">No house-specific Moon cycles match this filter view on ${selectedMonDay}.</div>`;
+        feedHtml = `<div style="font-size:0.74rem; color:var(--text-muted); padding:10px 4px;">No house-specific cycles match this filter view on ${selectedMonDay}.</div>`;
       } else if (grouped.mode === "milestones" && !state.nextAreaFilter) {
         feedHtml += `
           <div class="guidance-section-divider">
@@ -2638,6 +3129,8 @@
           <span class="selected-date-pill">${selectedMonDay}</span>
         </div>
 
+        ${dailySynthesisHtml}
+
         <div class="cycle-filter-bar" role="group" aria-label="Cycle View Filters">
           <button class="btn btn-sm ${state.detailMode === "today" && !state.nextAreaFilter ? "active" : ""}" id="modeTodayFocus" type="button">Today's Focus</button>
           <button class="btn btn-sm ${state.detailMode === "milestones" && !state.nextAreaFilter ? "active" : ""}" id="modeMilestones" type="button">Start / End / Peak</button>
@@ -2652,6 +3145,27 @@
 
         <div class="guidance-feed" id="guidanceFeed">${feedHtml}</div>
       `;
+
+      panel.querySelectorAll(".daily-notice-item.is-clickable").forEach((el) => {
+        const rawNums = (el.getAttribute("data-target-houses") || "")
+          .split(",")
+          .map((x) => Number(x.trim()))
+          .filter((n) => Number.isInteger(n) && n >= 1 && n <= 12);
+        if (rawNums.length === 0) return;
+
+        el.addEventListener("click", (e) => {
+          e.stopPropagation();
+          handleNoticeClick(rawNums);
+        });
+
+        el.addEventListener("keydown", (e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            e.stopPropagation();
+            handleNoticeClick(rawNums);
+          }
+        });
+      });
 
       document.getElementById("modeTodayFocus").addEventListener("click", () => {
         state.nextAreaFilter = null;
