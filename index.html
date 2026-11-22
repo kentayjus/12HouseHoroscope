@@ -20,6 +20,7 @@
       --moon-accent: #c084fc;
       --moon-soft: rgba(192, 132, 252, 0.16);
       --moon-border: rgba(192, 132, 252, 0.5);
+      --solstice-accent: #38bdf8;
       --radius-lg: 12px;
       --radius-md: 9px;
       --radius-sm: 6px;
@@ -1339,6 +1340,11 @@
       box-shadow: inset 0 0 0 1px rgba(192, 132, 252, 0.42);
     }
 
+    .day-cell.is-solstice-day {
+      border-color: rgba(56, 189, 248, 0.85);
+      box-shadow: inset 0 0 0 1px rgba(56, 189, 248, 0.5), 0 0 10px rgba(56, 189, 248, 0.25);
+    }
+
     .day-cell.is-next-area-day {
       box-shadow: 0 0 0 2px #e9d5ff, 0 0 12px rgba(192, 132, 252, 0.65);
     }
@@ -1372,6 +1378,17 @@
       border-radius: 4px;
       background: var(--gold);
       color: #090d16;
+    }
+
+    .solstice-tag {
+      font-size: 0.53rem;
+      font-weight: 800;
+      letter-spacing: 0.03em;
+      padding: 1px 4px;
+      border-radius: 4px;
+      background: rgba(56, 189, 248, 0.24);
+      color: #bae6fd;
+      border: 1px solid rgba(56, 189, 248, 0.55);
     }
 
     .day-swatches {
@@ -1552,7 +1569,8 @@
 
   <script>
     const TODAY_ISO = "2026-11-22";
-    const STORAGE_KEY = "cycle_explorer_signs_profile_v8";
+    const STORAGE_KEY = "cycle_explorer_signs_profile_v9";
+    const WINTER_SOLSTICE_ISO = "2026-12-21";
 
     const DEFAULT_PROFILE = {
       sunSign: "",
@@ -1594,7 +1612,7 @@
     const MOON_PHASE_GUIDANCE = {
       "New Moon": "Fresh start marker—set a clear, realistic intention or begin a simple habit here.",
       "First Quarter": "Action & adjustment marker—commit effort, work through early snags, and keep momentum going.",
-      "Full Moon": "Spotlight & wrap-up marker—see what is clear, finish a step, or drop what isn't working.",
+      "Full Moon": "Spotlight & culmination marker (and a Supermoon when near closest approach to Earth, appearing slightly larger and brighter with heightened emotional/mental intensity)—see what is clear, finish a step, or release what isn't working without rushing hasty reactions.",
       "Last Quarter": "Trim & close-out marker—cut extras, tie up loose ends, and wrap up before the next step starts."
     };
 
@@ -1603,7 +1621,7 @@
         discClass: "lunar-disc--new",
         headline: "New Moon — Dark / Beginning of Cycle",
         pacing: "Quiet starting point; energy is low-key and inward before momentum builds.",
-        summary: "The Moon sits near the Sun with its visible face dark. It is a clean slate for setting a simple intention, resting, and starting small without forcing fast results."
+        summary: "The Moon sits near the Sun with its visible face dark. It is a clean slate for setting a simple intention, resting, and starting small without forcing fast results (such as the Dec 8 New Moon in Sagittarius or Jan 7 New Moon in Capricorn)."
       },
       "Waxing Crescent": {
         discClass: "lunar-disc--waxing-crescent",
@@ -1615,7 +1633,7 @@
         discClass: "lunar-disc--first-quarter",
         headline: "First Quarter — Half-Lit Rising Push",
         pacing: "Decision and action point; commit effort and work through friction.",
-        summary: "Half of the Moon is illuminated as the cycle reaches its first turning point. Useful for making a choice, solving practical snags, and pushing a plan forward."
+        summary: "Half of the Moon is illuminated as the cycle reaches its first turning point. Useful for making a choice, solving practical snags, and pushing a plan forward (such as Dec 16 in Pisces or Jan 14 in Aries)."
       },
       "Waxing Gibbous": {
         discClass: "lunar-disc--waxing-gibbous",
@@ -1626,8 +1644,8 @@
       "Full Moon": {
         discClass: "lunar-disc--full",
         headline: "Full Moon — Full Bright Disc",
-        pacing: "Peak visibility and culmination; things stand out clearly.",
-        summary: "The Moon's face is fully illuminated opposite the Sun. Situations, feelings, and outcomes tend to feel clearer—ideal for seeing what's working, wrapping up a step, or releasing extras."
+        pacing: "Peak visibility and culmination; when near Earth's closest approach (a Supermoon), it looks slightly larger and brighter and can amplify feelings or urgency.",
+        summary: "The Moon's face is fully illuminated opposite the Sun. Situations, feelings, and outcomes tend to feel clearer—ideal for seeing what's working, wrapping up a step, or releasing extras. Both the Nov 24 Beaver Moon in Gemini (9:53 AM EST / 8:53 AM CST; best viewed evenings of Nov 23–24) and the Dec 23 Cold Moon in Cancer (8:28 PM EST) are Supermoons."
       },
       "Waning Gibbous": {
         discClass: "lunar-disc--waning-gibbous",
@@ -1639,7 +1657,7 @@
         discClass: "lunar-disc--last-quarter",
         headline: "Last Quarter — Half-Lit Waning Trim",
         pacing: "Clearing out and closing loops before the next cycle starts.",
-        summary: "Half of the Moon remains lit on the waning side of the cycle. A practical checkpoint to trim commitments, finish loose ends, and step back from excess."
+        summary: "Half of the Moon remains lit on the waning side of the cycle. A practical checkpoint to trim commitments, finish loose ends, and step back from excess (such as Dec 1 in Pisces or Dec 30 in Libra)."
       },
       "Waning Crescent": {
         discClass: "lunar-disc--waning-crescent",
@@ -1662,9 +1680,9 @@
         sign: "Gemini",
         start: "2026-11-23",
         end: "2026-11-25",
-        label: "Moon in Gemini",
-        meaning: "A busier, more talkative stretch focused on messages, errands, and shifting ideas.",
-        guidance: "Keep notes clear, double-check details before replying, and stay flexible with daily schedules."
+        label: "Moon in Gemini (Beaver Supermoon Window)",
+        meaning: "A lively, talkative stretch centered on messages, errands, and shifting ideas—peaking with the Nov 24 Beaver Full Supermoon in Gemini.",
+        guidance: "Keep notes clear, double-check details before replying, enjoy evening views on Nov 23–24, and stay grounded when news moves fast."
       },
       {
         sign: "Cancer",
@@ -1751,7 +1769,7 @@
         start: "2026-12-19",
         end: "2026-12-21",
         label: "Moon in Taurus",
-        meaning: "A steady focus on physical comfort, sensible pacing, and everyday security.",
+        meaning: "A steady focus on physical comfort, sensible pacing, and everyday security leading right into the Dec 21 Solstice.",
         guidance: "Keep plans practical, rest when tired, and avoid impulsive spending."
       },
       {
@@ -1759,16 +1777,16 @@
         start: "2026-12-21",
         end: "2026-12-23",
         label: "Moon in Gemini",
-        meaning: "A lively stretch of conversations, quick decisions, and tying up everyday details.",
+        meaning: "A lively stretch of conversations, quick decisions, and tying up everyday details right after the Solstice.",
         guidance: "Stay organized with messages and wrap up small loose ends before the holiday stretch."
       },
       {
         sign: "Cancer",
         start: "2026-12-23",
         end: "2026-12-26",
-        label: "Moon in Cancer",
-        meaning: "A sensitive stretch centered on home comfort, family dynamics, and personal boundaries.",
-        guidance: "Make room to recharge and set calm, clear limits if family or home demands pile up."
+        label: "Moon in Cancer (Cold Supermoon Window)",
+        meaning: "A sensitive, home-centered stretch peaking with the Dec 23 Cold Full Supermoon in Cancer (closer to Earth than the Nov Beaver Moon).",
+        guidance: "Make room to recharge at home and set calm, clear limits if family or holiday demands pile up."
       },
       {
         sign: "Leo",
@@ -1797,14 +1815,88 @@
     ];
 
     const LUNATION_MARKERS = [
-      { id: "lun-nov24", sign: "Gemini", date: "2026-11-24", moonPhase: "Full Moon", label: "Full Moon in Gemini", aspectType: "Full Moon", meaning: "A clear moment of realization or wrap-up around daily talk, decisions, or local plans.", guidance: "Pay attention to what becomes obvious in everyday conversations and act on clear facts." },
-      { id: "lun-dec01", sign: "Pisces", date: "2026-12-01", moonPhase: "Last Quarter", label: "Last Quarter Moon in Pisces", aspectType: "Last Quarter Moon", meaning: "A wind-down checkpoint to clear mental clutter, ease off over-giving, and let go of loose ends.", guidance: "Step back from extra noise and wrap up what doesn't need to carry into the next cycle." },
-      { id: "lun-dec08", sign: "Sagittarius", date: "2026-12-08", moonPhase: "New Moon", label: "New Moon in Sagittarius", aspectType: "New Moon", meaning: "A fresh starting point for your bigger-picture direction, personal standards, and honest goals.", guidance: "Choose one meaningful direction you genuinely believe in and take a practical first step." },
-      { id: "lun-dec16", sign: "Pisces", date: "2026-12-16", moonPhase: "First Quarter", label: "First Quarter Moon in Pisces", aspectType: "First Quarter Moon", meaning: "A mid-cycle push to turn quiet ideas or hunches into steady, real-world action.", guidance: "Follow through on what you started while keeping boundaries realistic." },
-      { id: "lun-dec23", sign: "Cancer", date: "2026-12-23", moonPhase: "Full Moon", label: "Full Moon in Cancer", aspectType: "Full Moon", meaning: "A strong checkpoint around home comfort, family needs, setting clear limits early, and getting real rest.", guidance: "Don't wait until you're burned out to set boundaries—protect rest and keep home life manageable." },
-      { id: "lun-dec30", sign: "Libra", date: "2026-12-30", moonPhase: "Last Quarter", label: "Last Quarter Moon in Libra", aspectType: "Last Quarter Moon", meaning: "A wrap-up point for one-on-one agreements, fairness, and trimming commitments that feel lopsided.", guidance: "Clear up lingering relationship or agreement details before starting the new year." },
-      { id: "lun-jan07", sign: "Capricorn", date: "2027-01-07", moonPhase: "New Moon", label: "New Moon in Capricorn", aspectType: "New Moon", meaning: "A practical starting point for steady work, structure, and long-term goals.", guidance: "Pick one realistic target and build a simple routine you can stick with." },
-      { id: "lun-jan14", sign: "Aries", date: "2027-01-14", moonPhase: "First Quarter", label: "First Quarter Moon in Aries", aspectType: "First Quarter Moon", meaning: "A push to take decisive action, push past hesitation, and test your momentum.", guidance: "Move forward directly on your main priority and adjust quickly if something needs tweaking." }
+      {
+        id: "lun-nov24",
+        sign: "Gemini",
+        date: "2026-11-24",
+        moonPhase: "Full Moon",
+        isSupermoon: true,
+        label: "Beaver Moon (Full Supermoon in Gemini)",
+        aspectType: "Full Supermoon • 9:53 AM EST (8:53 AM CST) • ~360,765 km",
+        meaning: "Full illumination on Tue, Nov 24 at 9:53 AM EST (8:53 AM CST / 14:53 UTC) at ~360,765 km—the first of three consecutive supermoons (best viewed evenings of Nov 23–24). Traditional Beaver Moon themes of late-autumn home preparation meet Gemini's focus on conversations, ideas, facts, and sudden insights.",
+        guidance: "Write down key ideas, verify details before speaking or replying, enjoy the bright evenings of Nov 23–24, and avoid making hasty choices on sudden news."
+      },
+      {
+        id: "lun-dec01",
+        sign: "Pisces",
+        date: "2026-12-01",
+        moonPhase: "Last Quarter",
+        label: "Last Quarter Moon in Pisces",
+        aspectType: "Last Quarter Moon • Waning Half-Lit Checkpoint",
+        meaning: "A waning half-moon checkpoint to clear mental clutter, ease off over-giving, and release lingering emotional or creative loose ends as late autumn transitions into December.",
+        guidance: "Step back from extra noise, protect quiet downtime, and wrap up what doesn't need to carry forward."
+      },
+      {
+        id: "lun-dec08",
+        sign: "Sagittarius",
+        date: "2026-12-08",
+        moonPhase: "New Moon",
+        label: "New Moon in Sagittarius",
+        aspectType: "New Moon • Fresh Cycle Reset",
+        meaning: "A dark-moon starting point for your bigger-picture direction, personal standards, learning goals, and candid priorities.",
+        guidance: "Choose one meaningful direction you genuinely believe in, trim distractions, and take a practical first step."
+      },
+      {
+        id: "lun-dec16",
+        sign: "Pisces",
+        date: "2026-12-16",
+        moonPhase: "First Quarter",
+        label: "First Quarter Moon in Pisces",
+        aspectType: "First Quarter Moon • Rising Action Checkpoint",
+        meaning: "A rising half-moon push to test your December intentions, work through early snags, and turn quiet hunches or plans into steady action.",
+        guidance: "Follow through on what you started while keeping boundaries and timelines realistic."
+      },
+      {
+        id: "lun-dec23",
+        sign: "Cancer",
+        date: "2026-12-23",
+        moonPhase: "Full Moon",
+        isSupermoon: true,
+        label: "Cold Moon (Full Supermoon in Cancer)",
+        aspectType: "Full Supermoon • 8:28 PM EST (7:28 PM CST) • ~356,738 km",
+        meaning: "Reaches fullness on Wed, Dec 23 at 8:28 PM EST (7:28 PM CST) at ~356,738 km—closer to Earth than November's Beaver Supermoon. Arriving two days after the Dec 21 Winter Solstice in sensitive, home-focused Cancer, it highlights family warmth, emotional boundaries, and rest.",
+        guidance: "Prioritize home comfort and emotional pacing, set clear limits around holiday obligations, and don't overextend your energy."
+      },
+      {
+        id: "lun-dec30",
+        sign: "Libra",
+        date: "2026-12-30",
+        moonPhase: "Last Quarter",
+        label: "Last Quarter Moon in Libra",
+        aspectType: "Last Quarter Moon • Year-End Trim",
+        meaning: "A waning half-moon wrap-up point for one-on-one agreements, fairness, and trimming commitments that feel lopsided before the new year.",
+        guidance: "Clear up lingering relationship or schedule details and let go of obligations that no longer feel balanced."
+      },
+      {
+        id: "lun-jan07",
+        sign: "Capricorn",
+        date: "2027-01-07",
+        moonPhase: "New Moon",
+        label: "New Moon in Capricorn",
+        aspectType: "New Moon • Grounded Start",
+        meaning: "A fresh lunar starting point in structured Capricorn focused on practical milestones, steady habits, and long-term reliability.",
+        guidance: "Pick one realistic target for the new year and build a simple, repeatable routine around it."
+      },
+      {
+        id: "lun-jan14",
+        sign: "Aries",
+        date: "2027-01-14",
+        moonPhase: "First Quarter",
+        label: "First Quarter Moon in Aries",
+        aspectType: "First Quarter Moon • Momentum Push",
+        meaning: "A rising half-moon push in direct Aries to take decisive action, clear hesitation, and adjust your early-year pace.",
+        guidance: "Move forward cleanly on your main priority and course-correct quickly where friction shows up."
+      }
     ];
 
     const SYNODIC_MONTH_DAYS = 29.530588;
@@ -1847,13 +1939,19 @@
 
       const detail = STANDALONE_MOON_PHASE_DETAILS[phaseName] || STANDALONE_MOON_PHASE_DETAILS["Waxing Crescent"];
       const transitSeg = MOON_TRANSIT_SEGMENTS.find((seg) => isoStr >= seg.start && isoStr <= seg.end);
+      const isSupermoon = Boolean(exactLunation && exactLunation.isSupermoon);
 
       return {
         phaseName,
+        isSupermoon,
         discClass: detail.discClass,
-        headline: detail.headline,
-        pacing: detail.pacing,
-        summary: detail.summary,
+        headline: isSupermoon ? `${detail.headline} • Supermoon` : detail.headline,
+        pacing: isSupermoon
+          ? `${detail.pacing} Supermoon note: slightly larger and brighter in the sky with extra emotional/mental pull—pace decisions deliberately.`
+          : detail.pacing,
+        summary: isSupermoon
+          ? `${detail.summary} (${exactLunation.label} is a Supermoon.)`
+          : detail.summary,
         cycleDay: Math.max(1, Math.min(30, Math.round(cycleAge) + 1)),
         illuminationPct,
         transitSign: transitSeg ? transitSeg.sign : null,
@@ -1866,7 +1964,9 @@
       const lower = (cycle.label || "").toLowerCase();
       if (lower.includes("new moon")) return "New Moon";
       if (lower.includes("first quarter")) return "First Quarter";
-      if (lower.includes("full moon")) return "Full Moon";
+      if (lower.includes("full moon") || lower.includes("full supermoon") || lower.includes("beaver moon") || lower.includes("cold moon")) {
+        return "Full Moon";
+      }
       if (lower.includes("last quarter")) return "Last Quarter";
       return null;
     }
@@ -2086,15 +2186,28 @@
         color: "#64748b",
         cycles: [
           {
+            id: "cap-winter-solstice",
+            tier: "major",
+            priority: 4.5,
+            isSolstice: true,
+            label: "Winter / December Solstice (2:50 PM CST / 3:50 PM EST)",
+            aspectType: "Solar Solstice • Shortest Day & Longest Night (Northern Hemisphere)",
+            start: "2026-12-21",
+            end: "2026-12-21",
+            color: "#38bdf8",
+            meaning: "Occurs on Monday, Dec 21, 2026 at 2:50 PM CST (3:50 PM EST / 20:50 UTC) as the Sun reaches its southernmost point in the sky and enters Capricorn, marking astronomical winter and the shortest day / longest night in the Northern Hemisphere. Astronomically and symbolically, it is the pivot where daylight begins slowly returning—a grounded threshold for rest, taking stock, and committing to steady, practical priorities.",
+            guidance: "Honor the seasonal pause: rest and simplify where you can, take honest stock of the year, and set grounded, realistic intentions as longer daylight gradually returns."
+          },
+          {
             id: "cap-sun-season",
             tier: "minor",
             priority: 17,
-            label: "Sun Enters Capricorn",
+            label: "Sun Enters Capricorn (Winter Season)",
             aspectType: "Seasonal Solar Focus",
             start: "2026-12-21",
             end: "2027-01-19",
             color: "#64748b",
-            meaning: "A seasonal shift toward practical responsibility, steady discipline, and turning plans into real, visible work.",
+            meaning: "Beginning on the Dec 21 Solstice, a seasonal shift toward practical responsibility, steady discipline, and turning plans into real, visible work.",
             guidance: "Set clear milestones for your work and responsibilities and judge progress by what gets finished."
           }
         ]
@@ -2186,6 +2299,7 @@
             tier: "minor",
             priority: 9,
             isMoonCycle: true,
+            isSupermoon: Boolean(lun.isSupermoon),
             moonPhase: lun.moonPhase,
             label: lun.label,
             aspectType: lun.aspectType,
@@ -2240,7 +2354,7 @@
       showAllSigns: true,
       filterActiveOnDate: false,
       detailMode: "today", // "today" | "milestones" | "midcycle"
-      expandedCycleIds: new Set(),
+      expandedCycleIds: new Set(["lun-nov24", "cap-winter-solstice"]),
       hoverPreview: null
     };
 
@@ -2596,10 +2710,6 @@
       scrollDetailsSlightlyIntoView();
     }
 
-    /**
-     * Synthesizes a top-level daily summary & guidance-focused "Things to Take Notice Of" block
-     * without raw astrological/house labels in the notice copy.
-     */
     function buildDailySynthesis(houses, dateISO) {
       const scopedHouses =
         state.selectedHouseNums.length > 0
@@ -2650,17 +2760,16 @@
       if (moonEntries.length > 0) {
         const leadMoon = moonEntries[0];
         themes.push(
-          `<strong>${lunar.phaseName} (${formatUniqueHouseNums(moonEntries, 1)}):</strong> ${leadMoon.cycle.guidance}`
+          `<strong>${lunar.phaseName}${lunar.isSupermoon ? " (Supermoon)" : ""} (${formatUniqueHouseNums(moonEntries, 1)}):</strong> ${leadMoon.cycle.guidance}`
         );
       } else if (themes.length === 0) {
         themes.push(
-          `<strong>${lunar.phaseName}:</strong> ${lunar.pacing}`
+          `<strong>${lunar.phaseName}${lunar.isSupermoon ? " (Supermoon)" : ""}:</strong> ${lunar.pacing}`
         );
       }
 
       const notices = [];
 
-      // Milestones happening directly on this date (guidance-focused, no raw labels)
       const milestoneEntries = activeEntries.filter((e) =>
         e.phaseCodes.some((p) => p === "S" || p === "E" || p === "P")
       );
@@ -2680,7 +2789,6 @@
         });
       }
 
-      // Pacing & review awareness (guidance-focused, no raw cycle/house verbiage)
       const rxEntries = majorEntries.filter((e) =>
         /retrograde|shift forward|station/i.test(e.cycle.label) ||
         /retrograde|station/i.test(e.cycle.aspectType)
@@ -2694,15 +2802,13 @@
         });
       }
 
-      // Lunar phase & illumination cue (guidance-focused)
       notices.push({
         isMoon: true,
         spark: "☾",
         houseNums: collectUniqueHouseNums(moonEntries, 2),
-        text: `<strong>${lunar.phaseName} (~${lunar.illuminationPct}% lit):</strong> ${lunar.pacing}`
+        text: `<strong>${lunar.phaseName}${lunar.isSupermoon ? " • Supermoon" : ""} (~${lunar.illuminationPct}% lit):</strong> ${lunar.pacing}`
       });
 
-      // Personal Sun / Moon placement matches on active houses (guidance-focused)
       const natalActive = activeEntries.filter((e) => Boolean(e.house.natalNote));
       if (natalActive.length > 0) {
         notices.push({
@@ -2934,6 +3040,9 @@
       const markerNote = lunar.exactLunationLabel
         ? ` • Lunation marker: ${lunar.exactLunationLabel}`
         : "";
+      const solsticeNote = dateISO === WINTER_SOLSTICE_ISO
+        ? `<div class="moon-standalone-sub"><strong>Dec 21 Winter Solstice Significance:</strong> Reaches solstice at 2:50 PM CST (3:50 PM EST / 20:50 UTC)—the shortest day and longest night in the Northern Hemisphere, marking the Sun's southernmost turn and the gradual return of longer daylight.</div>`
+        : "";
       return `
         <section class="moon-standalone-card" aria-label="Standalone Moon Cycle Overview">
           <div class="moon-standalone-header">
@@ -2946,6 +3055,7 @@
           </div>
           <div class="moon-standalone-body">${lunar.summary}</div>
           <div class="moon-standalone-sub"><strong>General Pacing:</strong> ${lunar.pacing}</div>
+          ${solsticeNote}
         </section>
       `;
     }
@@ -2956,11 +3066,19 @@
       const midClass = mid ? "is-midcycle" : "";
       const upcomingClass = isUpcoming ? "is-upcoming" : "";
 
-      const moonPrefix = cycle.isMoonCycle ? `<span class="moon-icon" aria-hidden="true">☾</span> ` : "";
+      const moonPrefix = cycle.isMoonCycle
+        ? `<span class="moon-icon" aria-hidden="true">☾</span> `
+        : cycle.isSolstice
+        ? `<span style="color:#38bdf8;" aria-hidden="true">☀</span> `
+        : "";
       const statusBadge = isUpcoming
         ? `UPCOMING (STARTS ${formatMonDay(cycle.start)}) • ${cycle.tier.toUpperCase()}`
+        : cycle.isSolstice
+        ? `SOLSTICE • SHORTEST DAY`
         : cycle.isMoonCycle
-        ? `MOON CYCLE`
+        ? cycle.isSupermoon
+          ? `MOON CYCLE • SUPERMOON`
+          : `MOON CYCLE`
         : `${cycle.tier.toUpperCase()}`;
 
       const natalNote = house.natalNote
@@ -2968,7 +3086,11 @@
         : "";
 
       const moonPhaseName = inferMoonPhaseForCycle(cycle);
-      const moonPhaseGuidanceText = moonPhaseName ? MOON_PHASE_GUIDANCE[moonPhaseName] : null;
+      const baseMoonPhaseGuidance = moonPhaseName ? MOON_PHASE_GUIDANCE[moonPhaseName] : null;
+      const moonPhaseGuidanceText =
+        moonPhaseName === "Full Moon" && cycle.isSupermoon
+          ? `${baseMoonPhaseGuidance} ${cycle.label} is a Supermoon—expect heightened brightness, clearer visibility, and stronger pull around conversations, choices, and emotions.`
+          : baseMoonPhaseGuidance;
       const houseAdviceText = HOUSE_MOON_ADVICE[house.num] || `Focus on practical choices around ${house.shortTheme.toLowerCase()}.`;
       const isNextAreaActive = state.nextAreaFilter && nextArea && state.nextAreaFilter.targetCycleId === nextArea.targetCycleId;
 
@@ -2994,7 +3116,7 @@
           <div class="guidance-moon-phase-note">
             <div class="guidance-moon-phase-top">
               <span class="moon-icon" aria-hidden="true">☾</span>
-              <div><strong>${moonPhaseName}:</strong> ${moonPhaseGuidanceText} ${houseAdviceText}</div>
+              <div><strong>${moonPhaseName}${cycle.isSupermoon ? " (Supermoon)" : ""}:</strong> ${moonPhaseGuidanceText} ${houseAdviceText}</div>
             </div>
             ${nextAreaBtnHtml}
           </div>
@@ -3079,7 +3201,7 @@
         ? renderDailySynthesisCardHtml(houses, state.selectedDate)
         : "";
 
-      const standaloneMoonHtml = state.moonOnlyFilter
+      const standaloneMoonHtml = state.moonOnlyFilter || state.selectedDate === WINTER_SOLSTICE_ISO
         ? renderStandaloneMoonCardHtml(state.selectedDate)
         : "";
 
@@ -3301,6 +3423,7 @@
         const iso = toISO(state.viewYear, state.viewMonth, d);
         const isToday = iso === TODAY_ISO;
         const isSelected = iso === state.selectedDate;
+        const isSolstice = iso === WINTER_SOLSTICE_ISO;
         const isNextAreaDay =
           Boolean(state.nextAreaFilter) &&
           isDateInRange(iso, state.nextAreaFilter.start, state.nextAreaFilter.end);
@@ -3321,7 +3444,7 @@
         cell.type = "button";
         cell.className = `day-cell ${isToday ? "is-today" : ""} ${isSelected ? "is-selected" : ""} ${
           hasMoonOnDay ? "has-moon-cycle" : ""
-        } ${isNextAreaDay ? "is-next-area-day" : ""}`;
+        } ${isSolstice ? "is-solstice-day" : ""} ${isNextAreaDay ? "is-next-area-day" : ""}`;
 
         const swatchesByKey = new Map();
         const activeHouseColors = [];
@@ -3409,9 +3532,12 @@
           cell.setAttribute("style", buildDayHighlightStyle(activeHouseColors));
         }
 
-        const moonTooltipParts = [`${lunar.phaseName} (~${lunar.illuminationPct}% lit)`];
+        const moonTooltipParts = [`${lunar.phaseName}${lunar.isSupermoon ? " (Supermoon)" : ""} (~${lunar.illuminationPct}% lit)`];
         if (hasMoonOnDay) {
           moonTooltipParts.push(dayMoonCycles.map((m) => `House ${m.house.num}: ${m.cycle.label}`).join(" • "));
+        }
+        if (isSolstice) {
+          moonTooltipParts.push("Winter Solstice (Dec 21, 2026 • Shortest Day)");
         }
         const moonTitle = moonTooltipParts.join(" — ");
 
@@ -3422,6 +3548,7 @@
               <span class="lunar-disc ${lunar.discClass}" title="${moonTitle}" aria-label="${lunar.phaseName}"></span>
             </span>
             <span style="display:inline-flex; gap:3px; align-items:center;">
+              ${isSolstice ? `<span class="solstice-tag" title="Winter Solstice">SOLSTICE</span>` : ""}
               ${isToday ? `<span class="today-tag">TODAY</span>` : ""}
             </span>
           </div>
